@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hamit Reyhani | Jewelry Designer</title>
+<meta name="description" content="Portfolio of Hamit Reyhani, a jewelry designer in Fethiye, Türkiye: 3D jewelry modeling, CAD, photorealistic rendering and collection development.">
+<link rel="canonical" href="https://hamitreyhani.com/">
+<meta name="theme-color" content="#e6e8e9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0f12" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Hamit Reyhani">
+<meta property="og:title" content="Hamit Reyhani | Jewelry Designer">
+<meta property="og:description" content="Portfolio of Hamit Reyhani, a jewelry designer in Fethiye, Türkiye: 3D jewelry modeling, CAD, photorealistic rendering and collection development.">
+<meta property="og:url" content="https://hamitreyhani.com/">
+<meta property="og:image" content="https://hamitreyhani.com/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Person", "name": "Hamit Reyhani", "jobTitle": "Jewelry designer", "url": "https://hamitreyhani.com/", "image": "https://hamitreyhani.com/og.jpg", "address": {"@type": "PostalAddress", "addressLocality": "Fethiye", "addressRegion": "Muğla", "addressCountry": "TR"}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..600;1,6..96,400..600&family=IBM+Plex+Mono:wght@400;500&family=Jost:wght@300..600&display=swap">
+<style>
+/* Layout concept: a quiet, cool-grey gallery wall. Big high-contrast serif name, work shown in full-bleed
+   masonry, labelled like CAD viewports (mono captions, one viewport-green accent). */
+:root {
+  --bg: #e6e8e9;
+  --surface: #f1f2f2;
+  --tile: #d9dcdc;
+  --ink: #101317;
+  --muted: #545b63;
+  --line: rgba(16, 19, 23, .16);
+  --accent: #0b7352;
+  --on-accent: #ffffff;
+  --band: #101317;
+  --band-ink: #eef1f2;
+  --band-muted: #a4adb5;
+  --band-line: rgba(238, 241, 242, .22);
+  --band-accent: #62d1a4;
+  --font-display: 'Bodoni Moda', 'Bodoni 72', Didot, Georgia, serif;
+  --font-body: 'Jost', Futura, 'Century Gothic', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+  --gap: 12px;
+  --maxw: 1360px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d0f12; --surface: #15181c; --tile: #1c2126; --ink: #eceff1; --muted: #9aa3ac;
+    --line: rgba(236, 239, 241, .16); --accent: #62d1a4; --on-accent: #07120d;
+    --band: #171b20; --band-ink: #eef1f2; --band-muted: #a4adb5; --band-line: rgba(238, 241, 242, .2);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d0f12; --surface: #15181c; --tile: #1c2126; --ink: #eceff1; --muted: #9aa3ac;
+  --line: rgba(236, 239, 241, .16); --accent: #62d1a4; --on-accent: #07120d;
+  --band: #171b20; --band-ink: #eef1f2; --band-muted: #a4adb5; --band-line: rgba(238, 241, 242, .2);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.6; font-weight: 400;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 40; background: var(--bg); }
+img { display: block; max-width: 100%; height: auto; }
+figure { margin: 0; }
+h1, h2, h3, h4, p, ul, ol { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
+
+.wrap {
+  width: 100%; max-width: var(--maxw); margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+@media (min-width: 900px) { .wrap { padding-left: max(32px, env(safe-area-inset-left, 0px)); padding-right: max(32px, env(safe-area-inset-right, 0px)); } }
+
+.eyebrow, .meta, .k, .tag, .chip, .when, .stage-label .n, .copy, .cap {
+  font-family: var(--font-mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+}
+.eyebrow { color: var(--accent); font-weight: 500; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; text-wrap: balance; font-optical-sizing: auto; }
+h2 { font-size: clamp(2rem, 4.4vw, 3.5rem); line-height: 1.05; letter-spacing: -.01em; }
+h3 { font-size: clamp(1.8rem, 3.2vw, 2.6rem); line-height: 1.08; }
+h4 { font-family: var(--font-body); font-weight: 500; font-size: 1.05rem; line-height: 1.3; }
+p { text-wrap: pretty; }
+
+/* ---------- nav ---------- */
+.nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); border-bottom: 1px solid var(--line); }
+@supports (background: color-mix(in srgb, red, blue)) {
+  .nav { background: color-mix(in srgb, var(--bg) 86%, transparent); backdrop-filter: blur(12px); }
+}
+.nav-in { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 58px; }
+.mark { font-family: var(--font-display); font-size: 1.3rem; font-style: italic; text-decoration: none; white-space: nowrap; }
+.nav nav { display: flex; align-items: center; gap: clamp(12px, 2.2vw, 28px); font-size: .92rem; }
+.nav nav a { text-decoration: none; color: var(--muted); padding-block: 6px; }
+.nav nav a:hover { color: var(--ink); }
+.nav-cta { color: var(--on-accent) !important; background: var(--accent); padding: 6px 14px !important; border-radius: 2px; }
+.nav-cta:hover { filter: brightness(1.08); }
+@media (max-width: 760px) { .nav nav a:not(.nav-cta):not([href="#work"]):not([href="#gallery"]) { display: none; } }
+@media (max-width: 420px) { .nav nav a[href="#gallery"] { display: none; } }
+
+/* ---------- hero ---------- */
+.hero { display: grid; gap: 28px; padding-block: clamp(28px, 5vw, 64px) clamp(28px, 4vw, 48px); align-items: end; }
+@media (min-width: 900px) { .hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 56px; } }
+.hero-copy { display: flex; flex-direction: column; gap: 22px; }
+h1 { font-size: clamp(3.6rem, 10.5vw, 8.6rem); line-height: .9; letter-spacing: -.03em; font-weight: 400; }
+.lead { max-width: 30rem; font-size: clamp(1.1rem, 1.6vw, 1.3rem); line-height: 1.5; color: var(--muted); }
+.cta { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { display: inline-block; text-decoration: none; padding: 12px 22px; background: var(--accent); color: var(--on-accent); font-weight: 500; border-radius: 2px; border: 1px solid var(--accent); }
+.btn:hover { filter: brightness(1.08); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--ink); }
+.btn.ghost:hover { background: var(--ink); color: var(--bg); filter: none; }
+.hero-img img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 2px; background: var(--tile); }
+.cap { display: block; margin-top: 8px; color: var(--muted); letter-spacing: .08em; }
+
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-block: 1px solid var(--line); margin-top: 12px; }
+@media (min-width: 800px) { .facts { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.facts > div { display: flex; flex-direction: column; gap: 4px; padding: 18px 16px 18px 0; }
+.facts > div + div { padding-left: 16px; border-left: 1px solid var(--line); }
+@media (max-width: 799px) { .facts > div:nth-child(3) { border-left: 0; padding-left: 0; } .facts > div:nth-child(n+3) { border-top: 1px solid var(--line); } }
+.k { color: var(--muted); }
+.v { font-family: var(--font-display); font-size: 1.25rem; line-height: 1.25; }
+
+/* ---------- about ---------- */
+.about { display: grid; gap: 28px; padding-block: clamp(56px, 8vw, 110px); }
+@media (min-width: 900px) { .about { grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 72px; align-items: center; } }
+.portrait img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 20%; border-radius: 2px; filter: grayscale(1) contrast(1.03); }
+.about-copy { display: flex; flex-direction: column; gap: 18px; max-width: 40rem; }
+.about-copy p:not(.eyebrow) { color: var(--muted); }
+.about-copy h2 { margin-bottom: 6px; }
+
+/* ---------- section heads ---------- */
+.sec-head { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+.sub-lead { color: var(--muted); max-width: 40rem; }
+.work, .gallery, .process, .motion, .tools, .exp { padding-block: 0 clamp(48px, 7vw, 96px); }
+.work::before, .gallery::before, .process::before, .motion::before, .tools::before, .exp::before {
+  content: ""; display: block; border-top: 1px solid var(--line); margin-bottom: clamp(40px, 6vw, 80px);
+}
+.tools::before { grid-column: 1 / -1; margin-bottom: 0; }
+
+/* ---------- photos ---------- */
+.zoom { display: block; width: 100%; padding: 0; border: 0; background: var(--tile); cursor: zoom-in; border-radius: 2px; overflow: hidden; }
+.zoom img { width: 100%; transition: transform .5s ease; }
+.zoom:hover img { transform: scale(1.025); }
+.ph figcaption, .cut figcaption, .cad figcaption, .tech figcaption, .vid figcaption, .vidbox figcaption, .pair figcaption {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding-top: 8px; font-size: .85rem; color: var(--muted); line-height: 1.3;
+}
+.tag { color: var(--accent); font-size: .66rem; }
+.masonry { column-width: 260px; column-gap: var(--gap); }
+.masonry .ph { break-inside: avoid; margin-bottom: 18px; }
+.masonry.three { columns: 3 240px; }
+@media (max-width: 560px) { .masonry.gal { column-width: 140px; column-gap: 10px; } .masonry.gal .ph figcaption { font-size: .78rem; } }
+@media (max-width: 560px) { .masonry.three.tight { columns: 2 150px; column-gap: 10px; } .masonry.three.tight .ph figcaption { font-size: .78rem; } }
+.two { display: grid; gap: var(--gap); grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; }
+.two .ph { margin: 0; }
+
+/* ---------- case studies ---------- */
+.case { padding-block: clamp(28px, 4vw, 52px); border-top: 1px solid var(--line); }
+.case:first-of-type { border-top: 0; padding-top: 8px; }
+.case-head { display: grid; gap: 14px 56px; margin-bottom: 26px; align-items: end; }
+@media (min-width: 900px) { .case-head { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.case-head .meta { color: var(--accent); margin-bottom: 8px; }
+.case-head > p { color: var(--muted); max-width: 36rem; }
+.stage { display: grid; gap: 14px 40px; padding-block: 26px; border-top: 1px solid var(--line); }
+@media (min-width: 900px) { .stage { grid-template-columns: minmax(0, 200px) minmax(0, 1fr); } }
+.stage-label { display: flex; flex-direction: column; gap: 4px; align-self: start; }
+@media (min-width: 900px) { .stage-label { position: sticky; top: 84px; } }
+.stage-label .n { color: var(--accent); }
+.stage-label p { color: var(--muted); font-size: .92rem; line-height: 1.4; }
+.sub { margin: 30px 0 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.sub h4 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 400; }
+.sub h4 span { font-family: var(--font-mono); font-size: .78rem; color: var(--accent); letter-spacing: .1em; margin-left: 8px; }
+.sub:first-child { margin-top: 0; }
+
+.cutgrid { display: grid; gap: var(--gap); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 720px) { .cutgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .cutgrid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+.cut .zoom { aspect-ratio: 1 / 1; display: grid; place-items: center; }
+.cut .zoom img { width: 100%; height: 100%; object-fit: contain; padding: 6%; }
+.cut.photo .zoom img { padding: 0; object-fit: cover; }
+@media (min-width: 1100px) { .cutgrid.five { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+
+.dragon { display: grid; gap: var(--gap); margin-bottom: 18px; }
+@media (min-width: 900px) { .dragon { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); } }
+.vidbox video, .vid video { width: 100%; height: auto; display: block; background: var(--tile); border-radius: 2px; object-fit: cover; }
+.vidbox video { aspect-ratio: 5 / 6; }
+.four { display: grid; gap: var(--gap); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.four .ph .zoom img { aspect-ratio: 1 / 1; object-fit: cover; }
+@media (min-width: 900px) {
+  .dragon { align-items: stretch; }
+  .four { grid-template-rows: repeat(2, minmax(0, 1fr)); }
+  .four .ph { display: flex; flex-direction: column; min-height: 0; }
+  .four .ph .zoom { flex: 1; min-height: 0; }
+  .four .ph .zoom img { height: 100%; aspect-ratio: auto; }
+}
+
+/* ---------- gallery ---------- */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+.chip { cursor: pointer; background: transparent; color: var(--ink); border: 1px solid var(--line); padding: 9px 14px; border-radius: 2px; }
+.chip .count { color: var(--muted); margin-left: 4px; }
+.chip:hover { border-color: var(--ink); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip[aria-pressed="true"] .count { color: inherit; opacity: .7; }
+
+/* ---------- process ---------- */
+/* sequences: CAD model, render, finished piece. Three equal cells on wide screens, a swipeable strip on phones. */
+.seqs { display: grid; gap: 52px; margin-bottom: 8px; }
+.seq { padding-top: 16px; border-top: 1px solid var(--line); }
+.seq-head { display: grid; gap: 8px 48px; margin-bottom: 16px; }
+@media (min-width: 900px) { .seq-head { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: end; } }
+.seq-head .meta { color: var(--accent); margin-bottom: 6px; }
+.seq-head h3 { font-size: clamp(1.7rem, 2.8vw, 2.3rem); }
+.seq-head > p { color: var(--muted); max-width: 36rem; font-size: .96rem; }
+.seq-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap); }
+.cell .media { aspect-ratio: 4 / 5; background: var(--tile); border-radius: 2px; overflow: hidden; }
+.cell .media .zoom { height: 100%; }
+.cell .media img, .cell .media video { width: 100%; height: 100%; display: block; object-fit: cover; object-position: var(--pos, 50% 50%); }
+.cell .media video { background: var(--tile); }
+.cell .zoom { --pos: 50% 50%; }
+.cell figcaption { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding-top: 8px; font-size: .85rem; color: var(--muted); line-height: 1.3; }
+@media (max-width: 700px) {
+  .seq-row { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+             margin-inline: -16px; padding-inline: 16px; scroll-padding-inline: 16px; padding-bottom: 8px; scrollbar-width: thin; }
+  .seq-row .cell { flex: 0 0 74%; scroll-snap-align: start; }
+}
+.pairs { display: grid; gap: 40px 56px; }
+@media (min-width: 1000px) { .pairs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pair { display: flex; flex-direction: column; gap: 14px; padding-top: 16px; border-top: 1px solid var(--line); }
+.pair-head h3 { font-size: 1.7rem; margin-bottom: 6px; }
+.pair-head p { color: var(--muted); font-size: .95rem; max-width: 34rem; }
+.pair-imgs { display: grid; grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr); gap: 10px; align-items: center; }
+.pair-imgs .zoom img { aspect-ratio: 1 / 1; object-fit: cover; }
+.arrow { width: 40px; height: 12px; color: var(--accent); }
+@media (max-width: 420px) { .pair-imgs { grid-template-columns: minmax(0, 1fr) 26px minmax(0, 1fr); } .arrow { width: 26px; } }
+.cadwrap { display: grid; gap: var(--gap); align-items: start; }
+@media (min-width: 900px) { .cadwrap { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); } }
+.cadgrid { display: grid; gap: var(--gap); grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+.cad .zoom img { aspect-ratio: 4 / 3; object-fit: cover; }
+.tech .zoom img { background: #fff; aspect-ratio: 1 / 1; object-fit: contain; }
+
+/* ---------- motion ---------- */
+.vids { display: grid; gap: var(--gap); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 760px) { .vids { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.vid video { aspect-ratio: 4 / 5; }
+.mgroup + .mgroup { margin-top: 44px; }
+.mgroup > .sub { margin-top: 0; }
+.clip video { width: 100%; height: auto; display: block; background: var(--tile); border-radius: 2px; }
+.clip figcaption { display: flex; flex-wrap: wrap; gap: 4px 10px; padding-top: 8px; font-size: .85rem; color: var(--muted); line-height: 1.3; }
+
+/* ---------- tools + services ---------- */
+.tools { display: grid; gap: 48px 72px; }
+@media (min-width: 960px) { .tools { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); } }
+.toolgroups { display: flex; flex-direction: column; gap: 22px; }
+.toolgroup h4 { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 500; margin-bottom: 8px; }
+.toolgroup ul { display: flex; flex-wrap: wrap; gap: 8px; }
+.toolgroup li { padding: 8px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 2px; font-weight: 500; }
+.note { margin-top: 24px; color: var(--muted); max-width: 30rem; }
+.services li { display: grid; gap: 2px 28px; padding-block: 16px; border-top: 1px solid var(--line); }
+.services li:last-child { border-bottom: 1px solid var(--line); }
+@media (min-width: 700px) { .services li { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); align-items: baseline; } }
+.services p { color: var(--muted); font-size: .96rem; }
+
+/* ---------- experience ---------- */
+.timeline li { display: grid; gap: 4px 40px; padding-block: 22px; border-top: 1px solid var(--line); }
+.timeline li:last-child { border-bottom: 1px solid var(--line); }
+@media (min-width: 800px) { .timeline li { grid-template-columns: 200px minmax(0, 1fr); } }
+.when { color: var(--accent); padding-top: 3px; }
+.timeline h4 { font-family: var(--font-display); font-weight: 400; font-size: 1.45rem; line-height: 1.2; margin-bottom: 6px; }
+.timeline p { color: var(--muted); max-width: 44rem; }
+
+/* ---------- contact ---------- */
+.contact { background: var(--band); color: var(--band-ink); padding-block: clamp(56px, 8vw, 110px); }
+.contact-in { display: grid; gap: 40px; align-items: center; }
+@media (min-width: 900px) { .contact-in { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 72px; } }
+.contact .eyebrow { color: var(--band-accent); }
+.contact-copy { display: flex; flex-direction: column; gap: 18px; }
+.contact-copy > p:not(.eyebrow) { color: var(--band-muted); max-width: 32rem; }
+.contact h2 { font-size: clamp(2.4rem, 6vw, 4.6rem); line-height: 1; }
+.contact-list { margin-top: 12px; }
+.contact-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; padding-block: 16px; border-top: 1px solid var(--band-line); align-items: center; }
+.contact-list li:last-child { border-bottom: 1px solid var(--band-line); }
+.contact-list .k { grid-column: 1 / -1; color: var(--band-muted); }
+.contact-list .val { font-family: var(--font-display); font-size: clamp(1.25rem, 2.6vw, 1.8rem); overflow-wrap: anywhere; user-select: all; }
+.acts { display: flex; gap: 8px; align-items: center; }
+.acts a, .copy { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--band-ink); background: transparent; border: 1px solid var(--band-line); padding: 8px 12px; border-radius: 2px; text-decoration: none; cursor: pointer; }
+.acts a:hover, .copy:hover { border-color: var(--band-ink); }
+.contact-img img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 2px; }
+.contact-img figcaption { padding-top: 8px; font-size: .8rem; color: var(--band-muted); }
+.foot { padding-block: 22px; background: var(--bg); }
+.foot-in { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 24px; color: var(--muted); font-size: .85rem; }
+
+/* ---------- lightbox ---------- */
+dialog#lb { border: 0; padding: 0; margin: 0; width: 100vw; max-width: 100vw; height: 100vh; height: 100dvh; max-height: none; background: rgba(8, 10, 12, .94); color: #eef1f2; }
+dialog#lb::backdrop { background: rgba(8, 10, 12, .94); }
+dialog#lb[open] { display: grid; grid-template-columns: 56px minmax(0, 1fr) 56px; align-items: center; }
+dialog#lb figure { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; min-height: 0; padding: 16px 0; }
+dialog#lb img { max-width: 100%; max-height: calc(100dvh - 110px); width: auto; height: auto; object-fit: contain; background: transparent; }
+dialog#lb figcaption { font-family: var(--font-mono); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: #aab3bb; text-align: center; padding-inline: 8px; }
+.lb-close, .lb-nav { background: transparent; color: #eef1f2; border: 0; cursor: pointer; font-size: 2.4rem; line-height: 1; padding: 10px; }
+.lb-close { position: absolute; top: calc(8px + env(safe-area-inset-top, 0px)); right: calc(10px + env(safe-area-inset-right, 0px)); z-index: 2; font-size: 2.2rem; }
+.lb-nav { height: 100%; opacity: .8; }
+.lb-nav:hover, .lb-close:hover { opacity: 1; }
+@media (max-width: 560px) { dialog#lb[open] { grid-template-columns: 40px minmax(0, 1fr) 40px; } .lb-nav { font-size: 1.8rem; padding: 4px; } }
+
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="mark" href="#top">Hamit Reyhani</a>
+    <nav aria-label="Sections">
+      <a href="#process">Process</a><a href="#work">Work</a><a href="#motion">Motion</a><a href="#tools">Tools</a><a href="#gallery">Gallery</a>
+      <a class="nav-cta" href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero wrap">
+    <div class="hero-copy">
+      <p class="eyebrow">Jewelry designer &middot; Fethiye, Türkiye</p>
+      <h1>Hamit<br>Reyhani</h1>
+      <p class="lead">I turn sketches and ideas into precise 3D models, photorealistic renders and files that are ready for production.</p>
+      <div class="cta"><a class="btn" href="#work">See selected work</a><a class="btn ghost" href="#contact">Contact me</a></div>
+    </div>
+    <figure class="hero-img"><img src="img/hero.webp" width="1500" height="1500" alt="Gold brooch, pins and pendants from the Adi Shakti collection, rendered from above" loading="eager" fetchpriority="high" decoding="async"><figcaption class="cap">Adi Shakti brooch, pins and pendants &middot; 3D render</figcaption></figure>
+  </section>
+
+  <section class="wrap" aria-label="At a glance"><div class="facts">
+    <div><span class="k">Practice</span><span class="v">Since 2022</span></div>
+    <div><span class="k">Core tools</span><span class="v">MatrixGold, Rhino, KeyShot</span></div>
+    <div><span class="k">Work for</span><span class="v">Brands and private clients</span></div>
+    <div><span class="k">Based in</span><span class="v">Fethiye, Muğla</span></div>
+  </div></section>
+
+  <section class="about wrap" id="about">
+    <figure class="portrait"><img src="img/portrait.webp" width="908" height="1018" alt="Portrait of Hamit Reyhani" loading="lazy" decoding="async"></figure>
+    <div class="about-copy">
+      <p class="eyebrow">About</p>
+      <h2>Distinctive pieces that carry a brand&rsquo;s identity.</h2>
+      <p>I&rsquo;m a jewelry designer with a close eye for detail. In every design I look for the balance between elegance and something new.</p>
+      <p>I have worked professionally since 2022 and trained in 3D jewelry design with MatrixGold at Istanbul Ticaret University. I also co-own a jewelry atelier, so I can manage the whole development process, from concept and 3D modeling of custom pieces to full collection development for brands.</p>
+      <p>My work covers 3D jewelry design, careful rendering of finished projects and animation. I also use AI-assisted visualization to explore ideas faster and to show designs in their best light.</p>
+    </div>
+  </section>
+
+  <section class="process wrap" id="process">
+    <div class="sec-head"><p class="eyebrow">Process</p><h2>From idea to finished piece</h2>
+      <p class="sub-lead">Three pieces followed from the CAD model to the render and the finished jewelry, then smaller steps from other projects.</p></div>
+    <div class="seqs"><article class="seq"><div class="seq-head"><div><p class="meta">Brooch · gold and white metal</p><h3>Comedy and Tragedy</h3></div><p>A pair of theatre masks with a pin, followed from the 3D model to a render and on to the finished piece.</p></div><div class="seq-row"><figure class="cell"><div class="media"><video class="loop" src="vid/c-masks-cad.mp4" poster="img/c-masks-cad-poster.webp" width="540" height="960" muted loop playsinline preload="none" aria-label="Comedy and Tragedy masks, CAD model turning in the viewport"></video></div><figcaption><span class="tag">01 · CAD model</span><span>The model turning in the viewport</span></figcaption></figure><figure class="cell"><div class="media"><button type="button" class="zoom" data-cap="Comedy and Tragedy masks, render in gold and white metal" aria-label="Enlarge: Comedy and Tragedy masks, render in gold and white metal"><img src="img/ph-masks.webp" width="720" height="1280" alt="Render of the Comedy and Tragedy masks in gold and white metal" loading="lazy" decoding="async"></button></div><figcaption><span class="tag">02 · Render</span><span>In gold and white metal</span></figcaption></figure><figure class="cell"><div class="media"><video class="loop" src="vid/c-masks-fin.mp4" poster="img/c-masks-fin-poster.webp" width="590" height="960" muted loop playsinline preload="none" aria-label="Comedy and Tragedy masks, finished piece held in the hand"></video></div><figcaption><span class="tag">03 · Finished piece</span><span>Held in the hand</span></figcaption></figure></div></article><article class="seq"><div class="seq-head"><div><p class="meta">Men’s ring · signet</p><h3>Compass Signet</h3></div><p>A compass rose on the face and a world map around the shoulders: the model, a render of it, then the finished ring.</p></div><div class="seq-row"><figure class="cell"><div class="media"><video class="loop" src="vid/c-compass-cad.mp4" poster="img/c-compass-cad-poster.webp" width="540" height="960" muted loop playsinline preload="none" aria-label="Compass signet ring, CAD model turning in the viewport"></video></div><figcaption><span class="tag">01 · CAD model</span><span>Model with the map texture</span></figcaption></figure><figure class="cell"><div class="media"><button type="button" class="zoom" style="--pos:38% 50%" data-cap="Compass signet ring, render in gold and black" aria-label="Enlarge: Compass signet ring, render in gold and black"><img src="img/m-compass.webp" width="1500" height="1500" alt="Gold compass signet ring with a world map in black enamel" loading="lazy" decoding="async"></button></div><figcaption><span class="tag">02 · Render</span><span>Rendered in gold and black</span></figcaption></figure><figure class="cell"><div class="media"><video class="loop" src="vid/c-compass-fin.mp4" poster="img/c-compass-fin-poster.webp" width="540" height="960" muted loop playsinline preload="none" aria-label="Compass signet ring, finished piece"></video></div><figcaption><span class="tag">03 · Finished piece</span><span>The ring, made</span></figcaption></figure></div></article><article class="seq"><div class="seq-head"><div><p class="meta">Bangle · bezel-set stones</p><h3>Slim Stone-Set Bangle</h3></div><p>A light two-bar bangle with stones set at intervals, from the model to the piece in the hand and on the wrist.</p></div><div class="seq-row"><figure class="cell"><div class="media"><video class="loop" src="vid/c-brace-cad.mp4" poster="img/c-brace-cad-poster.webp" width="720" height="796" muted loop playsinline preload="none" aria-label="Bezel-set bangle, CAD model turning in the viewport"></video></div><figcaption><span class="tag">01 · CAD model</span><span>Model with stone settings</span></figcaption></figure><figure class="cell"><div class="media"><video class="loop" src="vid/c-brace-fin.mp4" poster="img/c-brace-fin-poster.webp" width="540" height="960" muted loop playsinline preload="none" aria-label="Bezel-set bangle, finished piece in gloved hands"></video></div><figcaption><span class="tag">02 · Finished piece</span><span>In gloved hands</span></figcaption></figure><figure class="cell"><div class="media"><video class="loop" src="vid/c-brace-wrist.mp4" poster="img/c-brace-wrist-poster.webp" width="478" height="854" muted loop playsinline preload="none" aria-label="Bezel-set bangle worn on the wrist"></video></div><figcaption><span class="tag">03 · Worn</span><span>On the wrist</span></figcaption></figure></div></article></div>
+    <div class="sub"><h4>Single steps</h4></div>
+    <div class="pairs"><div class="pair"><div class="pair-head"><h3>Reference to design</h3><p>A sun-ray motif from a reference image becomes an engraved signet ring set with a single diamond.</p></div><div class="pair-imgs"><figure><button type="button" class="zoom" data-cap="Reference to design: Reference" aria-label="Enlarge: Reference"><img src="img/pr-idea.webp" width="900" height="899" alt="Reference image of a golden sun-ray motif" loading="lazy" decoding="async"></button><figcaption>Reference</figcaption></figure><svg class="arrow" viewBox="0 0 48 12" aria-hidden="true"><path d="M0 6h44M38 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><figure><button type="button" class="zoom" data-cap="Reference to design: Signet ring" aria-label="Enlarge: Signet ring"><img src="img/pr-signet.webp" width="1024" height="1024" alt="Gold signet ring engraved with sun rays and a diamond" loading="lazy" decoding="async"></button><figcaption>Signet ring</figcaption></figure></div></div><div class="pair"><div class="pair-head"><h3>CAD to AI visualization</h3><p>The finished emerald-cut ring model is placed in a lifestyle scene to show the design in context.</p></div><div class="pair-imgs"><figure><button type="button" class="zoom" data-cap="CAD to AI visualization: CAD model" aria-label="Enlarge: CAD model"><img src="img/pr-oasis-cad.webp" width="1500" height="780" alt="Four-viewport CAD model of an emerald-cut three-stone ring" loading="lazy" decoding="async"></button><figcaption>CAD model</figcaption></figure><svg class="arrow" viewBox="0 0 48 12" aria-hidden="true"><path d="M0 6h44M38 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><figure><button type="button" class="zoom" data-cap="CAD to AI visualization: AI-assisted visual" aria-label="Enlarge: AI-assisted visual"><img src="img/pr-oasis-ai.webp" width="1024" height="1024" alt="AI-assisted visualization of the finished emerald ring" loading="lazy" decoding="async"></button><figcaption>AI-assisted visual</figcaption></figure></div></div><div class="pair"><div class="pair-head"><h3>CAD to render</h3><p>Asymmetric flame earrings, built in 3D and rendered in gold with diamonds.</p></div><div class="pair-imgs"><figure><button type="button" class="zoom" data-cap="CAD to render: CAD model" aria-label="Enlarge: CAD model"><img src="img/pr-flame-cad.webp" width="420" height="412" alt="CAD model of asymmetric flame earrings" loading="lazy" decoding="async"></button><figcaption>CAD model</figcaption></figure><svg class="arrow" viewBox="0 0 48 12" aria-hidden="true"><path d="M0 6h44M38 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><figure><button type="button" class="zoom" data-cap="CAD to render: Render" aria-label="Enlarge: Render"><img src="img/e-flame.webp" width="1167" height="1347" alt="Asymmetric gold flame earrings with diamonds" loading="lazy" decoding="async"></button><figcaption>Render</figcaption></figure></div></div><div class="pair"><div class="pair-head"><h3>Render to finished piece</h3><p>A signet ring with a black stone, from the rendered design to the piece in the hand.</p></div><div class="pair-imgs"><figure><button type="button" class="zoom" data-cap="Render to finished piece: Render" aria-label="Enlarge: Render"><img src="img/m-onyx.webp" width="1500" height="1500" alt="Gold signet ring with a black oval stone" loading="lazy" decoding="async"></button><figcaption>Render</figcaption></figure><svg class="arrow" viewBox="0 0 48 12" aria-hidden="true"><path d="M0 6h44M38 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1.2"/></svg><figure><button type="button" class="zoom" data-cap="Render to finished piece: Finished ring" aria-label="Enlarge: Finished ring"><img src="img/m-onyx-real.webp" width="1125" height="1500" alt="Finished gold signet ring with a black stone held in a hand" loading="lazy" decoding="async"></button><figcaption>Finished ring</figcaption></figure></div></div></div>
+    <div class="sub"><h4>Viewport work and technical drawing</h4></div>
+    <div class="cadwrap"><figure class="tech"><button type="button" class="zoom" data-cap="Technical drawing with dimensions in millimetres" aria-label="Enlarge: technical drawing"><img src="img/cad-tech.webp" width="744" height="726" alt="Technical drawing of the Adi Shakti pendant with dimensions" loading="lazy" decoding="async"></button><figcaption>Technical drawing with dimensions in millimetres</figcaption></figure><div class="cadgrid"><figure class="cad"><button type="button" class="zoom" data-cap="Wedding set with pave stones" aria-label="Enlarge: Wedding set with pave stones"><img src="img/cad-1.webp" width="1084" height="1036" alt="CAD model of a wedding ring set with pave stones" loading="lazy" decoding="async"></button><figcaption>Wedding set with pave stones</figcaption></figure><figure class="cad"><button type="button" class="zoom" data-cap="Sunflower ring scrollwork" aria-label="Enlarge: Sunflower ring scrollwork"><img src="img/cad-2.webp" width="1079" height="1027" alt="CAD model of the sunflower ring with scrollwork" loading="lazy" decoding="async"></button><figcaption>Sunflower ring scrollwork</figcaption></figure><figure class="cad"><button type="button" class="zoom" data-cap="Halo ring viewports" aria-label="Enlarge: Halo ring viewports"><img src="img/cad-3.webp" width="1500" height="750" alt="Four-viewport CAD model of a halo ring" loading="lazy" decoding="async"></button><figcaption>Halo ring viewports</figcaption></figure><figure class="cad"><button type="button" class="zoom" data-cap="Floral oval ring" aria-label="Enlarge: Floral oval ring"><img src="img/cad-4.webp" width="1259" height="872" alt="CAD model of a floral oval ring" loading="lazy" decoding="async"></button><figcaption>Floral oval ring</figcaption></figure><figure class="cad"><button type="button" class="zoom" data-cap="Oval stone ring" aria-label="Enlarge: Oval stone ring"><img src="img/cad-5.webp" width="778" height="504" alt="CAD model of an oval stone ring with sapphire accents" loading="lazy" decoding="async"></button><figcaption>Oval stone ring</figcaption></figure><figure class="cad"><button type="button" class="zoom" data-cap="Om ring viewports" aria-label="Enlarge: Om ring viewports"><img src="img/cad-om.webp" width="1500" height="735" alt="Four-viewport CAD model of the Om ring" loading="lazy" decoding="async"></button><figcaption>Om ring viewports</figcaption></figure></div></div>
+  </section>
+
+  <section class="work wrap" id="work">
+    <div class="sec-head"><p class="eyebrow">Selected work</p><h2>Two projects, in more detail</h2></div>
+
+    <article class="case">
+      <header class="case-head">
+        <div><p class="meta">Nam Satya Co &middot; Brooch, pins and pendants</p><h3>Adi Shakti Collection</h3></div>
+        <p>A collection built on sacred-geometry motifs. I modeled each piece in 3D with pav&eacute;-set stones and rendered the set for presentation. The brooch is followed here from the CAD model through casting and polishing to the finished jewelry.</p>
+      </header>
+      <div class="stage"><div class="stage-label"><span class="n">01</span><h4>Concept</h4><p>Presentation board and a close look at the finished brooch design.</p></div><div class="stage-body"><div class="two"><figure class="ph"><button type="button" class="zoom" data-cap="Collection presentation board" aria-label="Enlarge: Collection presentation board"><img src="img/as-board.webp" width="1080" height="1350" alt="Adi Shakti collection presentation board" loading="lazy" decoding="async"></button><figcaption><span>Collection presentation board</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Brooch, top view" aria-label="Enlarge: Brooch, top view"><img src="img/as-detail.webp" width="1500" height="1500" alt="Top view of the Adi Shakti brooch with pave-set stones on marble" loading="lazy" decoding="async"></button><figcaption><span>Brooch, top view</span></figcaption></figure></div></div></div><div class="stage"><div class="stage-label"><span class="n">02</span><h4>CAD model</h4><p>Four-viewport models in MatrixGold and Rhino.</p></div><div class="stage-body"><div class="two"><figure class="ph"><button type="button" class="zoom" data-cap="Brooch, CAD viewports" aria-label="Enlarge: Brooch, CAD viewports"><img src="img/as-cad1.webp" width="1476" height="656" alt="Four-viewport CAD model of the Adi Shakti brooch" loading="lazy" decoding="async"></button><figcaption><span>Brooch, CAD viewports</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Pin, CAD viewports" aria-label="Enlarge: Pin, CAD viewports"><img src="img/as-cad2.webp" width="1475" height="659" alt="Four-viewport CAD model of an Adi Shakti pin" loading="lazy" decoding="async"></button><figcaption><span>Pin, CAD viewports</span></figcaption></figure></div></div></div><div class="stage"><div class="stage-label"><span class="n">03</span><h4>Render</h4><p>Photorealistic stills for presenting the set.</p></div><div class="stage-body"><div class="masonry"><figure class="ph"><button type="button" class="zoom" data-cap="The full set" aria-label="Enlarge: The full set"><img src="img/as-r-collection.webp" width="1500" height="1250" alt="Render of the full Adi Shakti set on a light linen background" loading="lazy" decoding="async"></button><figcaption><span>The full set</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Brooch on dark stone" aria-label="Enlarge: Brooch on dark stone"><img src="img/as-r-brooch.webp" width="1500" height="1500" alt="Render of the Adi Shakti brooch on dark stone" loading="lazy" decoding="async"></button><figcaption><span>Brooch on dark stone</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Brooch, from above" aria-label="Enlarge: Brooch, from above"><img src="img/as-r-pin.webp" width="1500" height="1500" alt="Render of the Adi Shakti brooch from above" loading="lazy" decoding="async"></button><figcaption><span>Brooch, from above</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Pendant with stone-set crescent" aria-label="Enlarge: Pendant with stone-set crescent"><img src="img/as-r-neck.webp" width="1500" height="1500" alt="Render of the Adi Shakti pendant with stone-set crescent" loading="lazy" decoding="async"></button><figcaption><span>Pendant with stone-set crescent</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Pendant on blue" aria-label="Enlarge: Pendant on blue"><img src="img/as-r-neck2.webp" width="1500" height="1500" alt="Render of the Adi Shakti pendant against a blue backdrop" loading="lazy" decoding="async"></button><figcaption><span>Pendant on blue</span></figcaption></figure></div></div></div><div class="stage"><div class="stage-label"><span class="n">04</span><h4>Casting and polishing</h4><p>The brooch cast in raw gold, then cleaned up on the bench.</p></div><div class="stage-body"><div class="masonry three tight"><figure class="ph"><button type="button" class="zoom" data-cap="Brooch cast in raw gold" aria-label="Enlarge: Brooch cast in raw gold"><img src="img/ph-cast1.webp" width="720" height="1280" alt="Adi Shakti brooch cast in raw gold, held in the hand" loading="lazy" decoding="async"></button><figcaption><span>Brooch cast in raw gold</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Raw cast parts on the bench" aria-label="Enlarge: Raw cast parts on the bench"><img src="img/ph-cast2.webp" width="720" height="1280" alt="Raw cast parts and ring shanks on the workshop bench" loading="lazy" decoding="async"></button><figcaption><span>Raw cast parts on the bench</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Polishing a cast part" aria-label="Enlarge: Polishing a cast part"><img src="img/ph-polish.webp" width="720" height="1280" alt="Polishing a small cast part on the bench" loading="lazy" decoding="async"></button><figcaption><span>Polishing a cast part</span></figcaption></figure></div></div></div><div class="stage"><div class="stage-label"><span class="n">05</span><h4>Finished piece</h4><p>The jewelry itself, in boxes, on the bench and worn.</p></div><div class="stage-body"><div class="masonry"><figure class="ph clip"><video class="loop" src="vid/c-adi-box.mp4" poster="img/c-adi-box-poster.webp" width="540" height="960" muted loop playsinline preload="none" aria-label="Adi Shakti brooch in a blue velvet box, shown in gloved hands"></video><figcaption><span>Brooch in its velvet box</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Brooch in a velvet box" aria-label="Enlarge: Brooch in a velvet box"><img src="img/as-f-box.webp" width="750" height="811" alt="Finished Adi Shakti brooch in a blue velvet gift box" loading="lazy" decoding="async"></button><figcaption><span>Brooch in a velvet box</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Pendant, worn" aria-label="Enlarge: Pendant, worn"><img src="img/as-f-worn.webp" width="1349" height="1500" alt="Finished Adi Shakti pendant worn on a silver chain" loading="lazy" decoding="async"></button><figcaption><span>Pendant, worn</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Pendants on the bench" aria-label="Enlarge: Pendants on the bench"><img src="img/as-f-bench.webp" width="844" height="1500" alt="Finished Adi Shakti pendants on a workshop bench" loading="lazy" decoding="async"></button><figcaption><span>Pendants on the bench</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Necklace in its box" aria-label="Enlarge: Necklace in its box"><img src="img/as-f-neckbox.webp" width="1200" height="1500" alt="Finished Adi Shakti necklace in a presentation box" loading="lazy" decoding="async"></button><figcaption><span>Necklace in its box</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Brooch with black enamel" aria-label="Enlarge: Brooch with black enamel"><img src="img/as-f-enamel.webp" width="1480" height="1500" alt="Finished Adi Shakti brooch with black enamel details" loading="lazy" decoding="async"></button><figcaption><span>Brooch with black enamel</span></figcaption></figure></div></div></div>
+    </article>
+
+    <article class="case">
+      <header class="case-head">
+        <div><p class="meta">Sculptural ring &middot; 3D modeled</p><h3>The Dragon Ring</h3></div>
+        <p>A dragon wrapped around the finger, with scaled texture, folded wings and a curled tail. The finished ring is shown on its display stand beside the renders and the print-ready model.</p>
+      </header>
+      <div class="dragon"><figure class="vidbox"><video class="loop" src="vid/v-dragon.mp4" poster="img/v-dragon-poster.webp" width="810" height="960" muted loop playsinline preload="none" aria-label="Turntable render of the dragon ring"></video><figcaption>Turntable render</figcaption></figure><div class="four"><figure class="ph"><button type="button" class="zoom" data-cap="Front view" aria-label="Enlarge: Front view"><img src="img/dr-1.webp" width="1055" height="1048" alt="Gold dragon ring on a display stand, front view" loading="lazy" decoding="async"></button><figcaption><span>Front view</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Side view" aria-label="Enlarge: Side view"><img src="img/dr-2.webp" width="1135" height="1135" alt="Gold dragon ring on a display stand, side view" loading="lazy" decoding="async"></button><figcaption><span>Side view</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Wing detail" aria-label="Enlarge: Wing detail"><img src="img/dr-3.webp" width="832" height="987" alt="Gold dragon ring on a display stand, wing detail" loading="lazy" decoding="async"></button><figcaption><span>Wing detail</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Tail detail" aria-label="Enlarge: Tail detail"><img src="img/dr-4.webp" width="1012" height="994" alt="Gold dragon ring on a display stand, tail detail" loading="lazy" decoding="async"></button><figcaption><span>Tail detail</span></figcaption></figure></div></div><div class="masonry three"><figure class="ph"><button type="button" class="zoom" data-cap="Render on white" aria-label="Enlarge: Render on white"><img src="img/dr-prev1.webp" width="1069" height="801" alt="Render of the dragon ring on white" loading="lazy" decoding="async"></button><figcaption><span>Render on white</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Model prepared for printing" aria-label="Enlarge: Model prepared for printing"><img src="img/dr-print.webp" width="941" height="754" alt="Dragon ring model prepared for printing" loading="lazy" decoding="async"></button><figcaption><span>Model prepared for printing</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="In the hand" aria-label="Enlarge: In the hand"><img src="img/dr-hand.webp" width="1500" height="1373" alt="Dragon ring held in a goldsmith&#x27;s hand" loading="lazy" decoding="async"></button><figcaption><span>In the hand</span></figcaption></figure></div>
+    </article>
+  </section>
+
+  <section class="motion wrap" id="motion">
+    <div class="sec-head"><p class="eyebrow">Motion</p><h2>Turntables and work in progress</h2>
+      <p class="sub-lead">Short loops of rendered models, followed by clips from the screen and the bench.</p></div>
+    <div class="mgroup"><div class="sub"><h4>Turntable renders</h4></div><div class="vids"><figure class="vid"><video class="loop" src="vid/v-sun.mp4" poster="img/v-sun-poster.webp" width="960" height="540" muted loop playsinline preload="none" aria-label="Turntable render: Sunflower Ring"></video><figcaption>Sunflower Ring</figcaption></figure><figure class="vid"><video class="loop" src="vid/v-halo.mp4" poster="img/v-halo-poster.webp" width="540" height="960" muted loop playsinline preload="none" aria-label="Turntable render: Spiral Halo Ring"></video><figcaption>Spiral Halo Ring</figcaption></figure><figure class="vid"><video class="loop" src="vid/v-snake.mp4" poster="img/v-snake-poster.webp" width="960" height="960" muted loop playsinline preload="none" aria-label="Turntable render: Serpent Ring"></video><figcaption>Serpent Ring</figcaption></figure><figure class="vid"><video class="loop" src="vid/v-ruby.mp4" poster="img/v-ruby-poster.webp" width="960" height="960" muted loop playsinline preload="none" aria-label="Turntable render: Tension-Set Ring"></video><figcaption>Tension-Set Ring</figcaption></figure><figure class="vid"><video class="loop" src="vid/c-tri.mp4" poster="img/c-tri-poster.webp" width="540" height="960" muted loop playsinline preload="none" aria-label="Turntable render: Tri-Colour Band"></video><figcaption>Tri-Colour Band</figcaption></figure><figure class="vid"><video class="loop" src="vid/c-pave.mp4" poster="img/c-pave-poster.webp" width="720" height="830" muted loop playsinline preload="none" aria-label="Turntable render: Pavé Signet Ring"></video><figcaption>Pavé Signet Ring</figcaption></figure></div></div>
+    <div class="mgroup"><div class="sub"><h4>From the screen and the bench</h4></div><div class="vids"><figure class="vid"><video class="loop" src="vid/c-clasp.mp4" poster="img/c-clasp-poster.webp" width="540" height="960" muted loop playsinline preload="none" aria-label="Clip: Bracelet Clasp, CAD"></video><figcaption>Bracelet Clasp, CAD</figcaption></figure><figure class="vid"><video class="loop" src="vid/c-cast.mp4" poster="img/c-cast-poster.webp" width="540" height="960" muted loop playsinline preload="none" aria-label="Clip: Cast Ring, Ready for Setting"></video><figcaption>Cast Ring, Ready for Setting</figcaption></figure><figure class="vid"><video class="loop" src="vid/c-finger.mp4" poster="img/c-finger-poster.webp" width="540" height="960" muted loop playsinline preload="none" aria-label="Clip: Openwork Ring, Worn"></video><figcaption>Openwork Ring, Worn</figcaption></figure></div></div>
+  </section>
+
+  <section class="tools wrap" id="tools">
+    <div class="tools-col">
+      <div class="sec-head"><p class="eyebrow">Tools</p><h2>What I work with</h2></div>
+      <div class="toolgroups"><div class="toolgroup"><h4>Modeling</h4><ul><li>MatrixGold</li><li>Rhino</li><li>Clayoo</li></ul></div><div class="toolgroup"><h4>Rendering</h4><ul><li>KeyShot</li><li>Maverick Studio</li></ul></div><div class="toolgroup"><h4>Ideas and layout</h4><ul><li>Claude</li><li>ChatGPT</li><li>Gemini</li><li>Meshy AI</li><li>Canva</li></ul></div></div>
+      <p class="note">AI helps me explore ideas and present finished designs. The jewelry itself is modeled in CAD.</p>
+    </div>
+    <div class="services-col">
+      <div class="sec-head"><p class="eyebrow">Services</p><h2>What I can do for you</h2></div>
+      <ul class="services"><li><h4>Custom jewelry design</h4><p>One-off pieces for private clients, from classic and minimal to highly detailed.</p></li><li><h4>3D jewelry modeling</h4><p>Clean, accurate models built to be made at the bench.</p></li><li><h4>MatrixGold and Rhino CAD design</h4><p>Parametric and freeform modeling, stone setting and pavé layouts.</p></li><li><h4>Rendering and visualization</h4><p>Photorealistic stills and turntable animations of finished models.</p></li><li><h4>Technical files for production</h4><p>Files prepared for printing, casting and manufacturing.</p></li><li><h4>Jewelry collection development</h4><p>Collections for brands, from the first idea through production.</p></li><li><h4>Design optimization for manufacturing</h4><p>Adjusting a design so it casts, sets and finishes well.</p></li></ul>
+    </div>
+  </section>
+
+  <section class="exp wrap" id="experience">
+    <div class="sec-head"><p class="eyebrow">Experience and education</p><h2>Background</h2></div>
+    <ol class="timeline">
+      <li><span class="when">2024 &ndash; Present</span><div><h4>Freelance jewelry designer and atelier co-owner</h4>
+        <p>Custom pieces for private clients, from classic and minimal designs to highly detailed, technically complex work. Jewelry collections for brands, supported from the first idea through production.</p></div></li>
+      <li><span class="when">2022 &ndash; 2024</span><div><h4>3D jewelry designer, Saraswati</h4>
+        <p>Designed pieces for the brand&rsquo;s Nature (2023) and Sea (2024) collections.</p></div></li>
+      <li><span class="when">Dec 2024 &ndash; Feb 2025</span><div><h4>Computer Aided Jewelry Design (MatrixGold), Istanbul Ticaret University</h4>
+        <p>72-hour certificate program in 3D jewelry design, completed with a Certificate of Achievement.</p></div></li>
+    </ol>
+  </section>
+
+  <section class="gallery wrap" id="gallery">
+    <div class="sec-head"><p class="eyebrow">Gallery</p><h2>More pieces</h2>
+      <p class="sub-lead">Rings, pendants, earrings and men&rsquo;s jewelry from the past few years. Select a piece to enlarge it.</p></div>
+    <div class="chips" role="group" aria-label="Filter the gallery"><button type="button" class="chip" data-filter="all" aria-pressed="true">All <span class="count">45</span></button><button type="button" class="chip" data-filter="rings" aria-pressed="false">Rings <span class="count">18</span></button><button type="button" class="chip" data-filter="pendants" aria-pressed="false">Pendants <span class="count">11</span></button><button type="button" class="chip" data-filter="earrings" aria-pressed="false">Earrings <span class="count">4</span></button><button type="button" class="chip" data-filter="mens" aria-pressed="false">Men’s <span class="count">8</span></button><button type="button" class="chip" data-filter="ai" aria-pressed="false">AI-assisted <span class="count">4</span></button></div>
+    <div class="masonry gal" id="galgrid"><figure class="ph" data-cat="rings"><button type="button" class="zoom" data-cap="Sunflower Cocktail Ring" aria-label="Enlarge: Sunflower Cocktail Ring"><img src="img/r-sun1.webp" width="1500" height="1500" alt="Sunflower cocktail ring seen from above" loading="lazy" decoding="async"></button><figcaption><span class="tag">Ring</span><span>Sunflower Cocktail Ring</span></figcaption></figure><figure class="ph" data-cat="mens"><button type="button" class="zoom" data-cap="Compass World Signet" aria-label="Enlarge: Compass World Signet"><img src="img/m-compass.webp" width="1500" height="1500" alt="Gold compass signet ring with a world map in black enamel" loading="lazy" decoding="async"></button><figcaption><span class="tag">Men’s</span><span>Compass World Signet</span></figcaption></figure><figure class="ph" data-cat="earrings"><button type="button" class="zoom" data-cap="Wave Drop Earrings" aria-label="Enlarge: Wave Drop Earrings"><img src="img/e-wave.webp" width="1500" height="1500" alt="Gold wave drop earrings with two diamonds each" loading="lazy" decoding="async"></button><figcaption><span class="tag">Earrings</span><span>Wave Drop Earrings</span></figcaption></figure><figure class="ph" data-cat="rings"><button type="button" class="zoom" data-cap="Origami Bloom Ring" aria-label="Enlarge: Origami Bloom Ring"><img src="img/r-bloom1.webp" width="1500" height="1500" alt="Gold origami bloom ring with lattice petals" loading="lazy" decoding="async"></button><figcaption><span class="tag">Ring</span><span>Origami Bloom Ring</span></figcaption></figure><figure class="ph" data-cat="ai"><button type="button" class="zoom" data-cap="Emerald Ring, Lifestyle Visual" aria-label="Enlarge: Emerald Ring, Lifestyle Visual"><img src="img/ai-o7.webp" width="1000" height="1500" alt="Gold emerald ring on a marble shelf beside a perfume bottle" loading="lazy" decoding="async"></button><figcaption><span class="tag">AI-assisted</span><span>Emerald Ring, Lifestyle Visual</span></figcaption></figure><figure class="ph" data-cat="pendants"><button type="button" class="zoom" data-cap="Strawberry Pendant" aria-label="Enlarge: Strawberry Pendant"><img src="img/p-straw.webp" width="1500" height="1500" alt="Strawberry pendant with red enamel" loading="lazy" decoding="async"></button><figcaption><span class="tag">Pendant</span><span>Strawberry Pendant</span></figcaption></figure><figure class="ph" data-cat="mens"><button type="button" class="zoom" data-cap="Engraved Building Signet" aria-label="Enlarge: Engraved Building Signet"><img src="img/m-build2.webp" width="1136" height="1500" alt="White gold signet ring with an engraved building, angled view" loading="lazy" decoding="async"></button><figcaption><span class="tag">Men’s</span><span>Engraved Building Signet</span></figcaption></figure><figure class="ph" data-cat="rings"><button type="button" class="zoom" data-cap="Spiral Halo Ring" aria-label="Enlarge: Spiral Halo Ring"><img src="img/r-halo.webp" width="1500" height="1500" alt="Spiral halo ring with a pink stone and diamonds" loading="lazy" decoding="async"></button><figcaption><span class="tag">Ring</span><span>Spiral Halo Ring</span></figcaption></figure><figure class="ph" data-cat="earrings"><button type="button" class="zoom" data-cap="Flame Earrings" aria-label="Enlarge: Flame Earrings"><img src="img/e-flame.webp" width="1167" height="1347" alt="Asymmetric gold flame earrings with diamonds" loading="lazy" decoding="async"></button><figcaption><span class="tag">Earrings</span><span>Flame Earrings</span></figcaption></figure><figure class="ph" data-cat="rings"><button type="button" class="zoom" data-cap="Crown Stacking Set" aria-label="Enlarge: Crown Stacking Set"><img src="img/r-crown.webp" width="1500" height="1500" alt="Gold crown ring with three pear-cut stones and a stacking band" loading="lazy" decoding="async"></button><figcaption><span class="tag">Ring</span><span>Crown Stacking Set</span></figcaption></figure><figure class="ph" data-cat="ai"><button type="button" class="zoom" data-cap="Pearl Ring on the Beach" aria-label="Enlarge: Pearl Ring on the Beach"><img src="img/ai-pearl.webp" width="1024" height="1024" alt="Gold ribbed ring with two pearls on a beach" loading="lazy" decoding="async"></button><figcaption><span class="tag">AI-assisted</span><span>Pearl Ring on the Beach</span></figcaption></figure><figure class="ph" data-cat="pendants"><button type="button" class="zoom" data-cap="Hamsa Pendant in Silver" aria-label="Enlarge: Hamsa Pendant in Silver"><img src="img/p-ham1.webp" width="1500" height="1500" alt="Silver hamsa pendant with a green stone eye" loading="lazy" decoding="async"></button><figcaption><span class="tag">Pendant</span><span>Hamsa Pendant in Silver</span></figcaption></figure><figure class="ph" data-cat="rings"><button type="button" class="zoom" data-cap="Pear Bypass Ring" aria-label="Enlarge: Pear Bypass Ring"><img src="img/r-pear1.webp" width="1500" height="1500" alt="Gold bypass ring with a pear-cut diamond" loading="lazy" decoding="async"></button><figcaption><span class="tag">Ring</span><span>Pear Bypass Ring</span></figcaption></figure><figure class="ph" data-cat="mens"><button type="button" class="zoom" data-cap="Onyx Halo Ring" aria-label="Enlarge: Onyx Halo Ring"><img src="img/m-halo.webp" width="1500" height="1500" alt="White gold ring with a black stone and diamond halo" loading="lazy" decoding="async"></button><figcaption><span class="tag">Men’s</span><span>Onyx Halo Ring</span></figcaption></figure><figure class="ph" data-cat="rings"><button type="button" class="zoom" data-cap="Serpent Ring" aria-label="Enlarge: Serpent Ring"><img src="img/r-snake.webp" width="1500" height="1500" alt="Gold serpent ring with a green stone and pave body" loading="lazy" decoding="async"></button><figcaption><span class="tag">Ring</span><span>Serpent Ring</span></figcaption></figure><figure class="ph" data-cat="pendants"><button type="button" class="zoom" data-cap="Pineapple Pendant" aria-label="Enlarge: Pineapple Pendant"><img src="img/p-pine.webp" width="1500" height="1500" alt="Pineapple pendant with green enamel crown" loading="lazy" decoding="async"></button><figcaption><span class="tag">Pendant</span><span>Pineapple Pendant</span></figcaption></figure><figure class="ph" data-cat="earrings"><button type="button" class="zoom" data-cap="Emerald Drop Earring" aria-label="Enlarge: Emerald Drop Earring"><img src="img/e-drop.webp" width="1500" height="1500" alt="Diamond drop earring with a green pear-shaped stone" loading="lazy" decoding="async"></button><figcaption><span class="tag">Earrings</span><span>Emerald Drop Earring</span></figcaption></figure><figure class="ph" data-cat="rings"><button type="button" class="zoom" data-cap="Sunflower Ring in White Metal" aria-label="Enlarge: Sunflower Ring in White Metal"><img src="img/r-sun3.webp" width="1500" height="1500" alt="Sunflower cocktail ring in white metal on black" loading="lazy" decoding="async"></button><figcaption><span class="tag">Ring</span><span>Sunflower Ring in White Metal</span></figcaption></figure><figure class="ph" data-cat="ai"><button type="button" class="zoom" data-cap="Amethyst Ring, Lifestyle Visual" aria-label="Enlarge: Amethyst Ring, Lifestyle Visual"><img src="img/ai-ame.webp" width="1024" height="1024" alt="White gold ring with an amethyst on marble" loading="lazy" decoding="async"></button><figcaption><span class="tag">AI-assisted</span><span>Amethyst Ring, Lifestyle Visual</span></figcaption></figure><figure class="ph" data-cat="rings"><button type="button" class="zoom" data-cap="Baguette Five-Stone Ring" aria-label="Enlarge: Baguette Five-Stone Ring"><img src="img/r-bag.webp" width="1500" height="1500" alt="Gold ring with an emerald-cut center and baguette side stones" loading="lazy" decoding="async"></button><figcaption><span class="tag">Ring</span><span>Baguette Five-Stone Ring</span></figcaption></figure><figure class="ph" data-cat="mens"><button type="button" class="zoom" data-cap="World Map Ring" aria-label="Enlarge: World Map Ring"><img src="img/m-world.webp" width="1500" height="1500" alt="Gold ring with a world map in black enamel, side view" loading="lazy" decoding="async"></button><figcaption><span class="tag">Men’s</span><span>World Map Ring</span></figcaption></figure><figure class="ph" data-cat="pendants"><button type="button" class="zoom" data-cap="Grape Bunch Pendant" aria-label="Enlarge: Grape Bunch Pendant"><img src="img/p-grape.webp" width="1500" height="1500" alt="Gold grape bunch pendant with an enamel leaf" loading="lazy" decoding="async"></button><figcaption><span class="tag">Pendant</span><span>Grape Bunch Pendant</span></figcaption></figure><figure class="ph" data-cat="rings"><button type="button" class="zoom" data-cap="Deco Baguette Ring" aria-label="Enlarge: Deco Baguette Ring"><img src="img/r-deco.webp" width="1500" height="1500" alt="Deco ring with a baguette teal stone and champagne stones" loading="lazy" decoding="async"></button><figcaption><span class="tag">Ring</span><span>Deco Baguette Ring</span></figcaption></figure><figure class="ph" data-cat="mens"><button type="button" class="zoom" data-cap="Sapphire Pave Ring" aria-label="Enlarge: Sapphire Pave Ring"><img src="img/m-sapphire.webp" width="1500" height="1500" alt="Silver ring with black enamel and sapphire pave" loading="lazy" decoding="async"></button><figcaption><span class="tag">Men’s</span><span>Sapphire Pave Ring</span></figcaption></figure><figure class="ph" data-cat="pendants"><button type="button" class="zoom" data-cap="Chakra Winged Pendant" aria-label="Enlarge: Chakra Winged Pendant"><img src="img/p-chakra.webp" width="1500" height="1500" alt="Winged pendant set with rainbow gemstones" loading="lazy" decoding="async"></button><figcaption><span class="tag">Pendant</span><span>Chakra Winged Pendant</span></figcaption></figure><figure class="ph" data-cat="rings"><button type="button" class="zoom" data-cap="Kite Stone Floral Ring" aria-label="Enlarge: Kite Stone Floral Ring"><img src="img/r-kite.webp" width="1500" height="1500" alt="White gold floral ring with a kite-shaped stone" loading="lazy" decoding="async"></button><figcaption><span class="tag">Ring</span><span>Kite Stone Floral Ring</span></figcaption></figure><figure class="ph" data-cat="ai"><button type="button" class="zoom" data-cap="Emerald Ring on Stone" aria-label="Enlarge: Emerald Ring on Stone"><img src="img/ai-o4.webp" width="1024" height="1024" alt="Gold emerald ring with pear-cut diamonds on a stone surface" loading="lazy" decoding="async"></button><figcaption><span class="tag">AI-assisted</span><span>Emerald Ring on Stone</span></figcaption></figure><figure class="ph" data-cat="rings"><button type="button" class="zoom" data-cap="Green Sapphire Oval Ring" aria-label="Enlarge: Green Sapphire Oval Ring"><img src="img/r-oval.webp" width="1500" height="1500" alt="Rose gold ring with a green oval stone and diamond clusters" loading="lazy" decoding="async"></button><figcaption><span class="tag">Ring</span><span>Green Sapphire Oval Ring</span></figcaption></figure><figure class="ph" data-cat="mens"><button type="button" class="zoom" data-cap="Gold Bands, Red Stone" aria-label="Enlarge: Gold Bands, Red Stone"><img src="img/m-red.webp" width="1500" height="1500" alt="Two gold bands, one set with a red stone" loading="lazy" decoding="async"></button><figcaption><span class="tag">Men’s</span><span>Gold Bands, Red Stone</span></figcaption></figure><figure class="ph" data-cat="pendants"><button type="button" class="zoom" data-cap="Banana Pendant" aria-label="Enlarge: Banana Pendant"><img src="img/p-banana.webp" width="1500" height="1500" alt="Banana pendant with yellow enamel" loading="lazy" decoding="async"></button><figcaption><span class="tag">Pendant</span><span>Banana Pendant</span></figcaption></figure><figure class="ph" data-cat="rings"><button type="button" class="zoom" data-cap="Cushion Bezel Ring" aria-label="Enlarge: Cushion Bezel Ring"><img src="img/r-cushion.webp" width="1500" height="1500" alt="White gold cushion bezel ring with baguette side stones on pebbles" loading="lazy" decoding="async"></button><figcaption><span class="tag">Ring</span><span>Cushion Bezel Ring</span></figcaption></figure><figure class="ph" data-cat="earrings"><button type="button" class="zoom" data-cap="Cocktail Shaker Studs" aria-label="Enlarge: Cocktail Shaker Studs"><img src="img/e-shaker.webp" width="1408" height="768" alt="Cocktail shaker stud earring in white metal" loading="lazy" decoding="async"></button><figcaption><span class="tag">Earrings</span><span>Cocktail Shaker Studs</span></figcaption></figure><figure class="ph" data-cat="mens"><button type="button" class="zoom" data-cap="Square Enamel Signet" aria-label="Enlarge: Square Enamel Signet"><img src="img/m-square.webp" width="1125" height="1500" alt="Gold square signet ring with black enamel" loading="lazy" decoding="async"></button><figcaption><span class="tag">Men’s</span><span>Square Enamel Signet</span></figcaption></figure><figure class="ph" data-cat="pendants"><button type="button" class="zoom" data-cap="Wave Pendant Necklace" aria-label="Enlarge: Wave Pendant Necklace"><img src="img/p-wave.webp" width="1500" height="1500" alt="Gold necklace with a wave pendant and two diamonds" loading="lazy" decoding="async"></button><figcaption><span class="tag">Pendant</span><span>Wave Pendant Necklace</span></figcaption></figure><figure class="ph" data-cat="rings"><button type="button" class="zoom" data-cap="Lotus Ring" aria-label="Enlarge: Lotus Ring"><img src="img/r-lotus.webp" width="1500" height="1500" alt="Gold ring with a lotus flower setting" loading="lazy" decoding="async"></button><figcaption><span class="tag">Ring</span><span>Lotus Ring</span></figcaption></figure><figure class="ph" data-cat="rings"><button type="button" class="zoom" data-cap="Ruby Halo Bypass Ring" aria-label="Enlarge: Ruby Halo Bypass Ring"><img src="img/r-ruby.webp" width="1500" height="1500" alt="Gold bypass ring with a ruby-coloured halo" loading="lazy" decoding="async"></button><figcaption><span class="tag">Ring</span><span>Ruby Halo Bypass Ring</span></figcaption></figure><figure class="ph" data-cat="mens"><button type="button" class="zoom" data-cap="Winged Black Ring" aria-label="Enlarge: Winged Black Ring"><img src="img/m-dark.webp" width="1500" height="1500" alt="Black and silver ring with winged ornament" loading="lazy" decoding="async"></button><figcaption><span class="tag">Men’s</span><span>Winged Black Ring</span></figcaption></figure><figure class="ph" data-cat="rings"><button type="button" class="zoom" data-cap="Baguette Band" aria-label="Enlarge: Baguette Band"><img src="img/r-9gem.webp" width="1500" height="1500" alt="Gold band channel-set with baguette stones" loading="lazy" decoding="async"></button><figcaption><span class="tag">Ring</span><span>Baguette Band</span></figcaption></figure><figure class="ph" data-cat="pendants"><button type="button" class="zoom" data-cap="Star Pendant" aria-label="Enlarge: Star Pendant"><img src="img/p-star.webp" width="844" height="1500" alt="Star pendant with white enamel inlay" loading="lazy" decoding="async"></button><figcaption><span class="tag">Pendant</span><span>Star Pendant</span></figcaption></figure><figure class="ph" data-cat="rings"><button type="button" class="zoom" data-cap="Princess Cluster Ring" aria-label="Enlarge: Princess Cluster Ring"><img src="img/r-princess.webp" width="1500" height="1500" alt="Rose gold ring with a princess-cut diamond and cluster accents" loading="lazy" decoding="async"></button><figcaption><span class="tag">Ring</span><span>Princess Cluster Ring</span></figcaption></figure><figure class="ph" data-cat="pendants"><button type="button" class="zoom" data-cap="Whale Tail Pin" aria-label="Enlarge: Whale Tail Pin"><img src="img/p-whale.webp" width="1500" height="1500" alt="Gold whale tail pin" loading="lazy" decoding="async"></button><figcaption><span class="tag">Pendant</span><span>Whale Tail Pin</span></figcaption></figure><figure class="ph" data-cat="rings"><button type="button" class="zoom" data-cap="Minimal Ring Set" aria-label="Enlarge: Minimal Ring Set"><img src="img/r-min.webp" width="1500" height="1500" alt="Minimal gold rings on a dark surface" loading="lazy" decoding="async"></button><figcaption><span class="tag">Ring</span><span>Minimal Ring Set</span></figcaption></figure><figure class="ph" data-cat="rings"><button type="button" class="zoom" data-cap="Garnet Band Ring" aria-label="Enlarge: Garnet Band Ring"><img src="img/ph-garnet.webp" width="720" height="1280" alt="Band ring with oval red stones, beaded edges and an open gallery" loading="lazy" decoding="async"></button><figcaption><span class="tag">Ring</span><span>Garnet Band Ring</span></figcaption></figure><figure class="ph" data-cat="pendants"><button type="button" class="zoom" data-cap="Lovebirds Pendant" aria-label="Enlarge: Lovebirds Pendant"><img src="img/ph-birds.webp" width="720" height="1280" alt="Gold circle pendant set with small stones and two tiny birds, one red and one blue" loading="lazy" decoding="async"></button><figcaption><span class="tag">Pendant</span><span>Lovebirds Pendant</span></figcaption></figure><figure class="ph" data-cat="pendants"><button type="button" class="zoom" data-cap="Flower of Life Pendant" aria-label="Enlarge: Flower of Life Pendant"><img src="img/ph-flower.webp" width="720" height="1280" alt="Silver pendant of interlocking circles on a black cord" loading="lazy" decoding="async"></button><figcaption><span class="tag">Pendant</span><span>Flower of Life Pendant</span></figcaption></figure></div>
+  </section>
+</main>
+
+<section class="contact" id="contact">
+  <div class="wrap contact-in">
+    <div class="contact-copy">
+      <p class="eyebrow">Contact</p>
+      <h2>Have a piece in mind?</h2>
+      <p>Send me a sketch, a reference image or just the idea. I&rsquo;ll tell you what it takes to model, render and produce it.</p>
+      <ul class="contact-list">
+        <li><span class="k">Email</span><span class="val" id="c-email">426487@gmail.com</span>
+          <span class="acts"><button type="button" class="copy" data-copy="c-email">Copy</button><a href="mailto:426487@gmail.com">Write</a></span></li>
+        <li><span class="k">Phone and WhatsApp</span><span class="val" id="c-phone">+90 553 309 44 19</span>
+          <span class="acts"><button type="button" class="copy" data-copy="c-phone">Copy</button><a href="https://wa.me/905533094419" target="_blank" rel="noopener">WhatsApp</a></span></li>
+        <li><span class="k">Location</span><span class="val">Fethiye, Muğla, Türkiye</span></li>
+      </ul>
+    </div>
+    <figure class="contact-img"><img src="img/contact-ring.webp" width="1378" height="1034" alt="Black and white photograph of a silver ring on a stone, with engraved script" loading="lazy" decoding="async"><figcaption>Photograph courtesy of the jewelry brand</figcaption></figure>
+  </div>
+</section>
+
+<footer class="foot"><div class="wrap foot-in"><span>&copy; 2026 Hamit Reyhani</span><span>Jewelry design from Fethiye, Türkiye</span></div></footer>
+
+<dialog id="lb" aria-label="Image viewer">
+  <button type="button" class="lb-close" aria-label="Close">&times;</button>
+  <button type="button" class="lb-nav prev" aria-label="Previous image">&#8249;</button>
+  <figure><img id="lb-img" alt=""><figcaption id="lb-cap"></figcaption></figure>
+  <button type="button" class="lb-nav next" aria-label="Next image">&#8250;</button>
+</dialog>
+
+<script>
+(function () {
+  'use strict';
+
+  // ----- gallery filter -----
+  var chips = document.querySelectorAll('.chip');
+  var items = document.querySelectorAll('#galgrid .ph');
+  chips.forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      var f = chip.getAttribute('data-filter');
+      chips.forEach(function (c) { c.setAttribute('aria-pressed', c === chip ? 'true' : 'false'); });
+      items.forEach(function (it) { it.hidden = !(f === 'all' || it.getAttribute('data-cat') === f); });
+    });
+  });
+
+  // ----- lightbox -----
+  var dlg = document.getElementById('lb');
+  var lbImg = document.getElementById('lb-img');
+  var lbCap = document.getElementById('lb-cap');
+  var list = [];
+  var idx = 0;
+
+  function visibleZooms() {
+    return Array.prototype.filter.call(document.querySelectorAll('.zoom'), function (b) {
+      return !b.closest('[hidden]');
+    });
+  }
+  function show(i) {
+    if (!list.length) return;
+    idx = (i + list.length) % list.length;
+    var b = list[idx];
+    var im = b.querySelector('img');
+    lbImg.src = im.currentSrc || im.src;
+    lbImg.alt = im.alt || '';
+    lbCap.textContent = b.getAttribute('data-cap') || im.alt || '';
+  }
+  function open(b) {
+    list = visibleZooms();
+    var i = list.indexOf(b);
+    show(i < 0 ? 0 : i);
+    if (typeof dlg.showModal === 'function') { dlg.showModal(); } else { dlg.setAttribute('open', ''); }
+  }
+  function close() {
+    if (typeof dlg.close === 'function') { dlg.close(); } else { dlg.removeAttribute('open'); }
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.zoom');
+    if (b) { open(b); }
+  });
+  dlg.querySelector('.lb-close').addEventListener('click', close);
+  dlg.querySelector('.prev').addEventListener('click', function () { show(idx - 1); });
+  dlg.querySelector('.next').addEventListener('click', function () { show(idx + 1); });
+  dlg.addEventListener('click', function (e) { if (e.target === dlg || e.target.tagName === 'FIGURE') close(); });
+  dlg.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft') { show(idx - 1); }
+    else if (e.key === 'ArrowRight') { show(idx + 1); }
+  });
+
+  // ----- copy buttons -----
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var el = document.getElementById(btn.getAttribute('data-copy'));
+      if (!el) return;
+      var text = el.textContent.trim();
+      function done() { var old = btn.textContent; btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = old; }, 1600); }
+      function fallback() {
+        try {
+          var r = document.createRange(); r.selectNodeContents(el);
+          var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+          btn.textContent = 'Selected';
+          setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+        } catch (err) { /* nothing else to do */ }
+      }
+      try {
+        navigator.clipboard.writeText(text).then(done, fallback);
+      } catch (err) { fallback(); }
+    });
+  });
+
+  // ----- turntable videos: play only while visible, never when motion is reduced -----
+  var vids = document.querySelectorAll('video.loop');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || !('IntersectionObserver' in window)) {
+    vids.forEach(function (v) { v.controls = true; });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        var v = en.target;
+        if (en.isIntersecting) { var p = v.play(); if (p && p.catch) { p.catch(function () { v.controls = true; }); } }
+        else { v.pause(); }
+      });
+    }, { threshold: 0.35 });
+    vids.forEach(function (v) { io.observe(v); });
+  }
+})();
+
+</script>
+</body>
+</html>
