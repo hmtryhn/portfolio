@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hamit Reyhani | Jewelry Designer</title>
-<meta name="description" content="Portfolio of Hamit Reyhani, a jewelry designer in Fethiye, Türkiye: 3D jewelry modeling, CAD, photorealistic rendering and collection development.">
+<meta name="description" content="Hamit Reyhani, jewelry designer in Fethiye, Türkiye: 3D jewelry CAD, photorealistic rendering and production-ready files, with optional production and worldwide shipping.">
 <link rel="canonical" href="https://hamitreyhani.com/">
 <meta name="theme-color" content="#e6e8e9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0d0f12" media="(prefers-color-scheme: dark)">
@@ -13,7 +13,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Hamit Reyhani">
 <meta property="og:title" content="Hamit Reyhani | Jewelry Designer">
-<meta property="og:description" content="Portfolio of Hamit Reyhani, a jewelry designer in Fethiye, Türkiye: 3D jewelry modeling, CAD, photorealistic rendering and collection development.">
+<meta property="og:description" content="Hamit Reyhani, jewelry designer in Fethiye, Türkiye: 3D jewelry CAD, photorealistic rendering and production-ready files, with optional production and worldwide shipping.">
 <meta property="og:url" content="https://hamitreyhani.com/">
 <meta property="og:image" content="https://hamitreyhani.com/og.jpg">
 <meta property="og:image:width" content="1200">
@@ -269,6 +269,19 @@ h1 { font-size: clamp(3.6rem, 10.5vw, 8.6rem); line-height: .9; letter-spacing: 
 @media (min-width: 700px) { .services li { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); align-items: baseline; } }
 .services p { color: var(--muted); font-size: .96rem; }
 
+/* ---------- for brands ---------- */
+.brands { padding-block: 0 clamp(48px, 7vw, 96px); }
+.brands::before { content: ""; display: block; border-top: 1px solid var(--line); margin-bottom: clamp(40px, 6vw, 80px); }
+.brands .sec-head h2 { max-width: 22ch; }
+.steps { display: grid; gap: 0 var(--gap); grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); counter-reset: st; margin-top: 8px; }
+.steps li { counter-increment: st; padding: 18px 0 22px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; }
+.steps li::before { content: "0" counter(st); font-family: var(--font-mono); font-size: .72rem; letter-spacing: .12em; color: var(--accent); }
+.steps p { color: var(--muted); font-size: .95rem; line-height: 1.45; }
+.brand-facts { display: grid; gap: 0 32px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); margin-top: 28px; background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 4px 22px; }
+.brand-facts > div { display: flex; flex-direction: column; gap: 4px; padding-block: 18px; }
+.brand-facts .v { font-size: 1.15rem; }
+.brands .cta { margin-top: 28px; }
+
 /* ---------- experience ---------- */
 .timeline li { display: grid; gap: 4px 40px; padding-block: 22px; border-top: 1px solid var(--line); }
 .timeline li:last-child { border-bottom: 1px solid var(--line); }
@@ -330,7 +343,7 @@ dialog#lb figcaption { font-family: var(--font-mono); font-size: .78rem; letter-
     <div class="hero-copy">
       <p class="eyebrow">Jewelry designer &middot; Fethiye, Türkiye</p>
       <h1>Hamit<br>Reyhani</h1>
-      <p class="lead">I turn sketches and ideas into precise 3D models, photorealistic renders and files that are ready for production.</p>
+      <p class="lead">I turn sketches and ideas into production-ready 3D models and photorealistic renders, and can take them all the way to the finished piece.</p>
       <div class="cta"><a class="btn" href="#work">See selected work</a><a class="btn ghost" href="#contact">Contact me</a></div>
     </div>
     <figure class="hero-img"><img src="img/hero.webp" width="1500" height="1500" alt="Gold brooch, pins and pendants from the Adi Shakti collection, rendered from above" loading="eager" fetchpriority="high" decoding="async"><figcaption class="cap">Adi Shakti brooch, pins and pendants &middot; 3D render</figcaption></figure>
@@ -349,7 +362,7 @@ dialog#lb figcaption { font-family: var(--font-mono); font-size: .78rem; letter-
       <p class="eyebrow">About</p>
       <h2>Distinctive pieces that carry a brand&rsquo;s identity.</h2>
       <p>I&rsquo;m a jewelry designer with a close eye for detail. In every design I look for the balance between elegance and something new.</p>
-      <p>I have worked professionally since 2022 and trained in 3D jewelry design with MatrixGold at Istanbul Ticaret University. I also co-own a jewelry atelier, so I can manage the whole development process, from concept and 3D modeling of custom pieces to full collection development for brands.</p>
+      <p>I have worked professionally since 2022 and trained in 3D jewelry design with MatrixGold at Istanbul Ticaret University. I also work as a production partner with a small jewelry atelier that puts quality before volume, so I can manage the whole development process, from concept and 3D modeling of custom pieces to full collection development for brands.</p>
       <p>My work covers 3D jewelry design, careful rendering of finished projects and animation. I also use AI-assisted visualization to explore ideas faster and to show designs in their best light.</p>
     </div>
   </section>
@@ -403,10 +416,28 @@ dialog#lb figcaption { font-family: var(--font-mono); font-size: .78rem; letter-
     </div>
   </section>
 
+  <section class="brands wrap" id="brands">
+    <div class="sec-head"><p class="eyebrow">For brands</p><h2>Design, production and delivery from one atelier</h2>
+      <p class="sub-lead">You bring the idea and sell the piece. I handle everything in between, so each order goes straight from my bench to your customer.</p></div>
+    <ol class="steps">
+      <li><h4>Design and 3D CAD</h4><p>From your sketch or reference to a production-ready model, with renders for approval.</p></li>
+      <li><h4>Production</h4><p>Cast, set and finished in gold or silver with my partner atelier, a small workshop that puts quality before volume.</p></li>
+      <li><h4>Product photography</h4><p>Photos and renders ready for your website, store listings and social media.</p></li>
+      <li><h4>Packaging</h4><p>Each piece boxed and ready to reach your customer.</p></li>
+      <li><h4>Customs and shipping</h4><p>Paperwork and courier handled, shipped directly to your customer.</p></li>
+    </ol>
+    <div class="brand-facts">
+      <div><span class="k">Materials</span><span class="v">Gold and silver</span></div>
+      <div><span class="k">Minimum order</span><span class="v">None, made to order from a single piece</span></div>
+      <div><span class="k">Shipped so far to</span><span class="v">USA, UK, Netherlands, Germany, Italy, Spain, Denmark, Latvia, Switzerland</span></div>
+    </div>
+    <div class="cta"><a class="btn" href="#contact">Talk about your collection</a><a class="btn ghost" href="#process">See the process</a></div>
+  </section>
+
   <section class="exp wrap" id="experience">
     <div class="sec-head"><p class="eyebrow">Experience and education</p><h2>Background</h2></div>
     <ol class="timeline">
-      <li><span class="when">2024 &ndash; Present</span><div><h4>Freelance jewelry designer and atelier co-owner</h4>
+      <li><span class="when">2024 &ndash; Present</span><div><h4>Freelance jewelry designer and production partner</h4>
         <p>Custom pieces for private clients, from classic and minimal designs to highly detailed, technically complex work. Jewelry collections for brands, supported from the first idea through production.</p></div></li>
       <li><span class="when">2022 &ndash; 2024</span><div><h4>3D jewelry designer, Saraswati</h4>
         <p>Designed pieces for the brand&rsquo;s Nature (2023) and Sea (2024) collections.</p></div></li>
