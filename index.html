@@ -280,7 +280,10 @@ h1 { font-size: clamp(3.6rem, 10.5vw, 8.6rem); line-height: .9; letter-spacing: 
 .brand-facts { display: grid; gap: 0 32px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); margin-top: 28px; background: var(--surface); border: 1px solid var(--line); border-radius: 2px; padding: 4px 22px; }
 .brand-facts > div { display: flex; flex-direction: column; gap: 4px; padding-block: 18px; }
 .brand-facts .v { font-size: 1.15rem; }
-.brands .cta { margin-top: 28px; }
+.brands .cta { margin-top: 22px; }
+.proof { margin-top: 22px; padding: 16px 20px; border-left: 2px solid var(--accent); background: var(--surface); display: flex; flex-direction: column; gap: 6px; }
+.proof p { color: var(--muted); font-size: .96rem; max-width: 46rem; }
+.proof a { color: var(--accent); font-weight: 500; }
 
 /* ---------- experience ---------- */
 .timeline li { display: grid; gap: 4px 40px; padding-block: 22px; border-top: 1px solid var(--line); }
@@ -407,7 +410,7 @@ dialog#lb figcaption { font-family: var(--font-mono); font-size: .78rem; letter-
   <section class="tools wrap" id="tools">
     <div class="tools-col">
       <div class="sec-head"><p class="eyebrow">Tools</p><h2>What I work with</h2></div>
-      <div class="toolgroups"><div class="toolgroup"><h4>Modeling</h4><ul><li>MatrixGold</li><li>Rhino</li><li>Clayoo</li></ul></div><div class="toolgroup"><h4>Rendering</h4><ul><li>KeyShot</li><li>Maverick Studio</li></ul></div><div class="toolgroup"><h4>Ideas and layout</h4><ul><li>Claude</li><li>ChatGPT</li><li>Gemini</li><li>Meshy AI</li><li>Canva</li></ul></div></div>
+      <div class="toolgroups"><div class="toolgroup"><h4>Modeling</h4><ul><li>MatrixGold</li><li>Rhino</li><li>Clayoo</li></ul></div><div class="toolgroup"><h4>Rendering</h4><ul><li>KeyShot</li><li>Maverick Studio</li><li>iJewel 3D</li></ul></div><div class="toolgroup"><h4>Ideas and layout</h4><ul><li>Claude</li><li>ChatGPT</li><li>Gemini</li><li>Meshy AI</li><li>Canva</li></ul></div></div>
       <p class="note">AI helps me explore ideas and present finished designs. The jewelry itself is modeled in CAD.</p>
     </div>
     <div class="services-col">
@@ -418,10 +421,10 @@ dialog#lb figcaption { font-family: var(--font-mono); font-size: .78rem; letter-
 
   <section class="brands wrap" id="brands">
     <div class="sec-head"><p class="eyebrow">For brands</p><h2>Design, production and delivery from one atelier</h2>
-      <p class="sub-lead">You bring the idea and sell the piece. I handle everything in between, so each order goes straight from my bench to your customer.</p></div>
+      <p class="sub-lead">You bring the idea and sell the piece. I manage everything in between, so each order goes from the atelier to your customer.</p></div>
     <ol class="steps">
       <li><h4>Design and 3D CAD</h4><p>From your sketch or reference to a production-ready model, with renders for approval.</p></li>
-      <li><h4>Production</h4><p>Cast, set and finished in gold or silver with my partner atelier, a small workshop that puts quality before volume.</p></li>
+      <li><h4>Production</h4><p>Cast, set and finished in gold or silver by the atelier I work with, a small workshop that puts quality before volume.</p></li>
       <li><h4>Product photography</h4><p>Photos and renders ready for your website, store listings and social media.</p></li>
       <li><h4>Packaging</h4><p>Each piece boxed and ready to reach your customer.</p></li>
       <li><h4>Customs and shipping</h4><p>Paperwork and courier handled, shipped directly to your customer.</p></li>
@@ -431,6 +434,8 @@ dialog#lb figcaption { font-family: var(--font-mono); font-size: .78rem; letter-
       <div><span class="k">Minimum order</span><span class="v">None, made to order from a single piece</span></div>
       <div><span class="k">Shipped so far to</span><span class="v">USA, UK, Netherlands, Germany, Italy, Spain, Denmark, Latvia, Switzerland</span></div>
     </div>
+    <div class="proof"><p class="eyebrow">Client credit</p>
+      <p>Nam Satya Co names the atelier I work with as the maker of their jewelry on their own site: <a href="https://namsatya.com/adishaktieu" target="_blank" rel="noopener">namsatya.com</a>.</p></div>
     <div class="cta"><a class="btn" href="#contact">Talk about your collection</a><a class="btn ghost" href="#process">See the process</a></div>
   </section>
 
@@ -439,10 +444,10 @@ dialog#lb figcaption { font-family: var(--font-mono); font-size: .78rem; letter-
     <ol class="timeline">
       <li><span class="when">2024 &ndash; Present</span><div><h4>Freelance jewelry designer and production partner</h4>
         <p>Custom pieces for private clients, from classic and minimal designs to highly detailed, technically complex work. Jewelry collections for brands, supported from the first idea through production.</p></div></li>
-      <li><span class="when">2022 &ndash; 2024</span><div><h4>Founder and jewelry designer, Saraswati</h4>
-        <p>Founded my own jewelry brand and designed its Nature (2023) and Sea (2024) collections, from first sketch to the finished, produced piece. Learned 3D modeling and production while running the brand.</p></div></li>
+      <li><span class="when">2022 &ndash; 2025</span><div><h4>Founder and jewelry designer, Saraswati</h4>
+        <p>Founded my own jewelry brand and designed its Nature (2023) and Sea (2024) collections, from first idea to the finished, produced piece. Learned 3D modeling and production while running the brand.</p></div></li>
       <li><span class="when">Dec 2024 &ndash; Feb 2025</span><div><h4>Computer Aided Jewelry Design (MatrixGold), Istanbul Ticaret University</h4>
-        <p>72-hour certificate program in 3D jewelry design, completed with a Certificate of Achievement.</p></div></li>
+        <p>72-hour certificate program in 3D jewelry design, run by Istanbul Ticaret University with the Istanbul Chamber of Jewelers, completed with a Certificate of Achievement.</p></div></li>
     </ol>
   </section>
 
@@ -465,6 +470,10 @@ dialog#lb figcaption { font-family: var(--font-mono); font-size: .78rem; letter-
           <span class="acts"><button type="button" class="copy" data-copy="c-email">Copy</button><a href="mailto:426487@gmail.com">Write</a></span></li>
         <li><span class="k">Phone and WhatsApp</span><span class="val" id="c-phone">+90 553 309 44 19</span>
           <span class="acts"><button type="button" class="copy" data-copy="c-phone">Copy</button><a href="https://wa.me/905533094419" target="_blank" rel="noopener">WhatsApp</a></span></li>
+        <li><span class="k">LinkedIn</span><span class="val">abdulhamit-reyhani</span>
+          <span class="acts"><a href="https://www.linkedin.com/in/abdulhamit-reyhani" target="_blank" rel="noopener">LinkedIn</a></span></li>
+        <li><span class="k">Instagram (atelier)</span><span class="val">@anca.atelier</span>
+          <span class="acts"><a href="https://www.instagram.com/anca.atelier" target="_blank" rel="noopener">Instagram</a></span></li>
         <li><span class="k">Location</span><span class="val">Fethiye, Muğla, Türkiye</span></li>
       </ul>
     </div>
