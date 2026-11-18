@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Dragon Ring in 3D · Hamit Reyhani</title>
+<meta name="description" content="Rotate the Dragon Ring in 3D. Modeled in CAD by Hamit Reyhani, cast and finished by the atelier he works with.">
+<link rel="icon" href="../favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@1,6..96,500&family=Jost:wght@400;500&display=swap">
+<style>
+:root {
+  --stage: #e6e8e9; --ink: #101317; --ink-soft: #5d636a; --line: rgba(16, 19, 23, 0.14); --chip: rgba(255, 255, 255, 0.62);
+  --font-display: "Bodoni Moda", "Didot", Georgia, serif; --font-ui: "Jost", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+}
+html, body { height: 100%; margin: 0; }
+body { background: var(--stage); color: var(--ink); font-family: var(--font-ui); overflow: hidden; }
+.stage { position: fixed; inset: 0; }
+.stage canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+.stage canvas:active { cursor: grabbing; }
+.label { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 20px); left: max(20px, env(safe-area-inset-left, 0px)); display: grid; gap: 6px; }
+.label h1 { margin: 0; font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: clamp(26px, 4vw, 38px); line-height: 1; }
+.label p { margin: 0; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+.label a { font-size: 13px; color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); width: fit-content; margin-top: 4px; }
+.label a:hover { border-color: var(--ink); }
+.bar { position: fixed; left: 0; right: 0; margin-inline: auto; width: fit-content; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+  display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: 999px; background: var(--chip); border: 1px solid var(--line);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); max-width: calc(100vw - 32px); flex-wrap: wrap; justify-content: center; }
+.bar button { appearance: none; border: 0; background: transparent; color: var(--ink); font: 500 13px/1 var(--font-ui); padding: 9px 12px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.bar button:hover { background: rgba(255, 255, 255, 0.7); }
+.bar button:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+.bar button[aria-pressed="true"] { background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.dot { width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,.18); }
+.sep { width: 1px; height: 20px; background: var(--line); margin: 0 2px; }
+.hint { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 24px); right: max(20px, env(safe-area-inset-right, 0px)); font-size: 12px; color: var(--ink-soft); text-align: right; line-height: 1.5; pointer-events: none; }
+.loading { position: fixed; inset: 0; display: grid; place-items: center; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); pointer-events: none; transition: opacity .4s; }
+.loading.done { opacity: 0; }
+@media (max-width: 560px) { .hint { display: none; } }
+@media (prefers-reduced-motion: reduce) { .loading { transition: none; } }
+</style>
+</head>
+<body>
+<div class="stage" id="stage"></div>
+<div class="label">
+  <h1>The Dragon Ring</h1>
+  <p id="metalName">As modeled · gold</p>
+  <a href="../#work">&larr; Back to the portfolio</a>
+</div>
+<div class="hint">Drag to rotate<br>Scroll or pinch to zoom</div>
+<div class="loading" id="loading">Loading the model</div>
+<div class="bar" role="toolbar" aria-label="View">
+  <button aria-pressed="true" data-metal="orig"><span class="dot" style="background:#e3b56f"></span>As modeled</button>
+  <button aria-pressed="false" data-metal="yellow"><span class="dot" style="background:#e2b45a"></span>Yellow</button>
+  <button aria-pressed="false" data-metal="white"><span class="dot" style="background:#dfe1e3"></span>White</button>
+  <button aria-pressed="false" data-metal="rose"><span class="dot" style="background:#e4ad97"></span>Rose</button>
+  <span class="sep" aria-hidden="true"></span>
+  <button id="spin" aria-pressed="true">Spin</button>
+  <button id="reset" aria-pressed="false">Reset</button>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
+
+const METALS = {
+  yellow: { name: "Yellow gold", color: [1.0, 0.66, 0.26] },
+  white:  { name: "White gold",  color: [0.86, 0.86, 0.85] },
+  rose:   { name: "Rose gold",   color: [0.98, 0.58, 0.44] },
+};
+const SUB_ORIG = document.getElementById("metalName").textContent;
+const loadingEl = document.getElementById("loading");
+
+const host = document.getElementById("stage");
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+host.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#e6e8e9");
+const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 2000);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false;
+controls.autoRotate = true; controls.autoRotateSpeed = 1.6;
+
+// Studio light: brown_photostudio_02 (Poly Haven, CC0), 1k.
+const pmrem = new THREE.PMREMGenerator(renderer);
+new RGBELoader().load("studio_1k.hdr", (tex) => {
+  tex.mapping = THREE.EquirectangularReflectionMapping;
+  scene.environment = pmrem.fromEquirectangular(tex).texture;
+  tex.dispose();
+});
+
+const metalMats = [];
+function metalMaterial(src) {
+  const m = new THREE.MeshPhysicalMaterial({ metalness: 1, roughness: 0.06, envMapIntensity: 1.15, side: THREE.DoubleSide });
+  m.color.copy(src.color);
+  m.userData.orig = m.color.clone();
+  metalMats.push(m);
+  return m;
+}
+function setMetal(key) {
+  for (const m of metalMats) {
+    if (key === "orig") m.color.copy(m.userData.orig);
+    else m.color.setRGB(...METALS[key].color, THREE.LinearSRGBColorSpace);
+  }
+  document.getElementById("metalName").textContent = key === "orig" ? SUB_ORIG : METALS[key].name + " preview";
+  document.querySelectorAll("[data-metal]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.metal === key)));
+}
+function shadowTexture() {
+  const c = document.createElement("canvas"); c.width = c.height = 256;
+  const g = c.getContext("2d");
+  const r = g.createRadialGradient(128, 128, 0, 128, 128, 128);
+  r.addColorStop(0, "rgba(30,32,36,0.55)"); r.addColorStop(0.45, "rgba(30,32,36,0.22)"); r.addColorStop(1, "rgba(30,32,36,0)");
+  g.fillStyle = r; g.fillRect(0, 0, 256, 256);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+
+let home = null;
+const loader = new GLTFLoader();
+loader.setMeshoptDecoder(MeshoptDecoder);
+loader.load("dragon.glb", (gltf) => {
+  const ring = gltf.scene;
+  const box = new THREE.Box3().setFromObject(ring);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  const wrap = new THREE.Group();
+  ring.position.sub(center); ring.position.y += size.y / 2;
+  wrap.add(ring); scene.add(wrap);
+
+  const bySrc = new Map();
+  ring.traverse((o) => {
+    if (!o.isMesh) return;
+    const src = o.material;
+    if (!bySrc.has(src)) bySrc.set(src, metalMaterial(src));
+    o.material = bySrc.get(src);
+  });
+
+  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1),
+    new THREE.MeshBasicMaterial({ map: shadowTexture(), transparent: true, depthWrite: false, toneMapped: false }));
+  shadow.rotation.x = -Math.PI / 2; shadow.position.y = 0.01;
+  shadow.scale.set(size.x * 1.25, size.z * 1.25, 1);
+  scene.add(shadow);
+
+  const radius = size.length() / 2;
+  const target = new THREE.Vector3(0, size.y * 0.55, 0);
+  const vHalf = THREE.MathUtils.degToRad(camera.fov / 2);
+  const hHalf = Math.atan(Math.tan(vHalf) * camera.aspect);
+  const dist = radius / Math.sin(Math.min(vHalf, hHalf)) * 0.95;
+  const dir = new THREE.Vector3(0.55, 0.45, 1).normalize();
+  home = { pos: target.clone().addScaledVector(dir, dist), target };
+  camera.position.copy(home.pos); controls.target.copy(target);
+  controls.minDistance = dist * 0.3; controls.maxDistance = dist * 2.2;
+  camera.near = dist / 100; camera.far = dist * 20; camera.updateProjectionMatrix();
+  controls.update();
+  loadingEl.classList.add("done");
+}, (ev) => {
+  if (ev.total) loadingEl.textContent = "Loading the model · " + Math.round(ev.loaded / ev.total * 100) + "%";
+}, (err) => {
+  loadingEl.textContent = "The model could not be loaded";
+  console.error(err);
+});
+
+document.querySelectorAll("[data-metal]").forEach((b) => b.addEventListener("click", () => setMetal(b.dataset.metal)));
+const spin = document.getElementById("spin");
+spin.addEventListener("click", () => { controls.autoRotate = !controls.autoRotate; spin.setAttribute("aria-pressed", String(controls.autoRotate)); });
+if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { controls.autoRotate = false; spin.setAttribute("aria-pressed", "false"); }
+document.getElementById("reset").addEventListener("click", () => {
+  if (!home) return; camera.position.copy(home.pos); controls.target.copy(home.target); controls.update();
+});
+function resize() {
+  const w = host.clientWidth, h = host.clientHeight;
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+window.addEventListener("resize", resize); resize();
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+</script>
+</body>
+</html>
