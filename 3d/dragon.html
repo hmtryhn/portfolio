@@ -50,14 +50,13 @@ body.embed .dot { width: 12px; height: 12px; }
 <div class="stage" id="stage"></div>
 <div class="label">
   <h1>The Dragon Ring</h1>
-  <p id="metalName">As modeled · gold</p>
+  <p id="metalName">Yellow gold</p>
   <a href="../#work">&larr; Back to the portfolio</a>
 </div>
 <div class="hint">Drag to rotate<br>Scroll or pinch to zoom</div>
 <div class="loading" id="loading">Loading the model</div>
 <div class="bar" role="toolbar" aria-label="View">
-  <button aria-pressed="true" data-metal="orig"><span class="dot" style="background:#e3b56f"></span>As modeled</button>
-  <button aria-pressed="false" data-metal="yellow"><span class="dot" style="background:#e2b45a"></span>Yellow</button>
+    <button aria-pressed="true" data-metal="yellow"><span class="dot" style="background:#e2b45a"></span>Yellow</button>
   <button aria-pressed="false" data-metal="white"><span class="dot" style="background:#dfe1e3"></span>White</button>
   <button aria-pressed="false" data-metal="rose"><span class="dot" style="background:#e4ad97"></span>Rose</button>
   <span class="sep" aria-hidden="true"></span>
@@ -76,13 +75,14 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
+import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 
 const METALS = {
   yellow: { name: "Yellow gold", color: [1.0, 0.66, 0.26] },
   white:  { name: "White gold",  color: [0.86, 0.86, 0.85] },
   rose:   { name: "Rose gold",   color: [0.98, 0.58, 0.44] },
 };
+const DRACO_PATH = "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/gltf/";
 const EMBED = new URLSearchParams(location.search).has("embed");
 if (EMBED) document.body.classList.add("embed");
 const SUB_ORIG = document.getElementById("metalName").textContent;
@@ -115,7 +115,7 @@ new RGBELoader().load("studio_1k.hdr", (tex) => {
 const metalMats = [];
 function metalMaterial(src) {
   const m = new THREE.MeshPhysicalMaterial({ metalness: 1, roughness: 0.06, envMapIntensity: 1.15, side: THREE.DoubleSide });
-  m.color.copy(src.color);
+  m.color.setRGB(...METALS.yellow.color, THREE.LinearSRGBColorSpace);
   m.userData.orig = m.color.clone();
   metalMats.push(m);
   return m;
@@ -125,7 +125,7 @@ function setMetal(key) {
     if (key === "orig") m.color.copy(m.userData.orig);
     else m.color.setRGB(...METALS[key].color, THREE.LinearSRGBColorSpace);
   }
-  document.getElementById("metalName").textContent = key === "orig" ? SUB_ORIG : METALS[key].name + " preview";
+  document.getElementById("metalName").textContent = METALS[key].name;
   document.querySelectorAll("[data-metal]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.metal === key)));
 }
 function shadowTexture() {
@@ -139,7 +139,10 @@ function shadowTexture() {
 
 let home = null;
 const loader = new GLTFLoader();
-loader.setMeshoptDecoder(MeshoptDecoder);
+const draco = new DRACOLoader();
+draco.setDecoderPath(DRACO_PATH);
+draco.setDecoderConfig({ type: "js" });
+loader.setDRACOLoader(draco);
 loader.load("dragon.glb", (gltf) => {
   const ring = gltf.scene;
   const box = new THREE.Box3().setFromObject(ring);
