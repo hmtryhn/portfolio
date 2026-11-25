@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3D View · Hamit Reyhani</title>
+<meta name="description" content="Rotate jewelry CAD models in 3D by Hamit Reyhani.">
+<link rel="icon" href="../favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@1,6..96,500&family=IBM+Plex+Mono:wght@400;500&family=Jost:wght@400;500&display=swap">
+<link rel="stylesheet" href="viewer.css">
+</head>
+<body>
+<div class="stage" id="stage"></div>
+<div class="label">
+  <h1 id="productTitle">3D View</h1>
+  <p class="meta-row" id="metalName">Yellow gold</p>
+  <p class="note" id="productNote" hidden></p>
+  <a id="backLink" href="../#work">&larr; Back to the portfolio</a>
+</div>
+<div class="hint">Drag to rotate<br>Scroll or pinch to zoom</div>
+<div class="loading" id="loading">Loading the model</div>
+<div class="bar" role="toolbar" aria-label="View">
+  <button aria-pressed="false" data-metal="orig" hidden><span class="dot" style="background:linear-gradient(135deg,#e2b45a 50%,#dfe1e3 50%)"></span>Original</button>
+  <button aria-pressed="true" data-metal="yellow"><span class="dot" style="background:#e2b45a"></span>Yellow</button>
+  <button aria-pressed="false" data-metal="white"><span class="dot" style="background:#dfe1e3"></span>White</button>
+  <button aria-pressed="false" data-metal="rose"><span class="dot" style="background:#e4ad97"></span>Rose</button>
+  <span class="sep" aria-hidden="true"></span>
+  <button id="spin" aria-pressed="true">Spin</button>
+  <button id="reset" aria-pressed="false">Reset</button>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import { initViewer } from "./viewer.js";
+initViewer();
+</script>
+</body>
+</html>

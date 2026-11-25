@@ -155,6 +155,12 @@ h1 { font-size: clamp(3.6rem, 10.5vw, 8.6rem); line-height: .9; letter-spacing: 
   display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding-top: 8px; font-size: .85rem; color: var(--muted); line-height: 1.3;
 }
 .tag { color: var(--accent); font-size: .66rem; }
+.view3d {
+  margin-left: auto; font-family: var(--font-mono); font-size: .66rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--accent); border: 1px solid var(--line); padding: 3px 8px; border-radius: 2px; text-decoration: none; white-space: nowrap;
+  transition: border-color .2s, background .2s;
+}
+.view3d:hover { border-color: var(--accent); background: var(--surface); }
 .masonry { column-width: 260px; column-gap: var(--gap); }
 .masonry .ph { break-inside: avoid; margin-bottom: 18px; }
 .masonry.three { columns: 3 240px; }
@@ -329,6 +335,26 @@ dialog#lb figcaption { font-family: var(--font-mono); font-size: .78rem; letter-
 .lb-nav:hover, .lb-close:hover { opacity: 1; }
 @media (max-width: 560px) { dialog#lb[open] { grid-template-columns: 40px minmax(0, 1fr) 40px; } .lb-nav { font-size: 1.8rem; padding: 4px; } }
 
+/* ---------- 3D modal ---------- */
+dialog#v3d { border: 0; padding: 0; margin: 0; width: 100vw; max-width: 100vw; height: 100vh; height: 100dvh; max-height: none; background: #e6e8e9; color: #101317; }
+dialog#v3d::backdrop { background: rgba(8, 10, 12, .72); }
+dialog#v3d[open] { display: grid; grid-template-rows: auto minmax(0, 1fr); }
+.v3d-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px));
+  border-bottom: 1px solid rgba(16, 19, 23, .14); background: #e6e8e9;
+}
+.v3d-title { font-family: var(--font-display); font-style: italic; font-size: 1.25rem; line-height: 1.1; }
+.v3d-acts { display: flex; align-items: center; gap: 10px; }
+.v3d-full {
+  font-family: var(--font-mono); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase;
+  color: #0b7352; text-decoration: none; border: 1px solid rgba(16, 19, 23, .16); padding: 6px 10px; border-radius: 2px;
+}
+.v3d-full:hover { border-color: #0b7352; }
+.v3d-full:focus-visible, .v3d-close:focus-visible { outline: 2px solid #0b7352; outline-offset: 2px; }
+.v3d-close { background: transparent; color: #101317; border: 0; cursor: pointer; font-size: 2rem; line-height: 1; padding: 2px 8px; }
+dialog#v3d iframe { width: 100%; height: 100%; border: 0; display: block; background: #e6e8e9; }
+
 </style>
 </head>
 <body>
@@ -398,7 +424,7 @@ dialog#lb figcaption { font-family: var(--font-mono); font-size: .78rem; letter-
         <div><p class="meta">Sculptural ring &middot; 3D modeled</p><h3>The Dragon Ring</h3></div>
         <p>A dragon wrapped around the finger, with scaled texture, folded wings and a curled tail. The finished ring is shown on its display stand beside the renders and the print-ready model.</p>
       </header>
-      <div class="dragon"><figure class="vidbox"><iframe class="viewer3d" src="3d/dragon.html?embed" title="The Dragon Ring in 3D: drag to rotate" loading="lazy" allow="fullscreen"></iframe><figcaption>3D view: drag to rotate &middot; <a href="3d/dragon.html">Full screen</a></figcaption></figure><div class="four"><figure class="ph"><button type="button" class="zoom" data-cap="Front view" aria-label="Enlarge: Front view"><img src="img/dr-1.webp" width="1055" height="1048" alt="Gold dragon ring on a display stand, front view" loading="lazy" decoding="async"></button><figcaption><span>Front view</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Side view" aria-label="Enlarge: Side view"><img src="img/dr-2.webp" width="1135" height="1135" alt="Gold dragon ring on a display stand, side view" loading="lazy" decoding="async"></button><figcaption><span>Side view</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Wing detail" aria-label="Enlarge: Wing detail"><img src="img/dr-3.webp" width="832" height="987" alt="Gold dragon ring on a display stand, wing detail" loading="lazy" decoding="async"></button><figcaption><span>Wing detail</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Tail detail" aria-label="Enlarge: Tail detail"><img src="img/dr-4.webp" width="1012" height="994" alt="Gold dragon ring on a display stand, tail detail" loading="lazy" decoding="async"></button><figcaption><span>Tail detail</span></figcaption></figure></div></div><div class="masonry three"><figure class="ph"><button type="button" class="zoom" data-cap="Render on white" aria-label="Enlarge: Render on white"><img src="img/dr-prev1.webp" width="1069" height="801" alt="Render of the dragon ring on white" loading="lazy" decoding="async"></button><figcaption><span>Render on white</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Model prepared for printing" aria-label="Enlarge: Model prepared for printing"><img src="img/dr-print.webp" width="941" height="754" alt="Dragon ring model prepared for printing" loading="lazy" decoding="async"></button><figcaption><span>Model prepared for printing</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="In the hand" aria-label="Enlarge: In the hand"><img src="img/dr-hand.webp" width="1500" height="1373" alt="Dragon ring held in a goldsmith&#x27;s hand" loading="lazy" decoding="async"></button><figcaption><span>In the hand</span></figcaption></figure></div>
+      <div class="dragon"><figure class="vidbox"><iframe class="viewer3d" data-src="3d/dragon.html?embed" title="The Dragon Ring in 3D: drag to rotate" loading="lazy" allow="fullscreen"></iframe><figcaption>3D view: drag to rotate &middot; <a href="3d/dragon.html">Full screen</a></figcaption></figure><div class="four"><figure class="ph"><button type="button" class="zoom" data-cap="Front view" aria-label="Enlarge: Front view"><img src="img/dr-1.webp" width="1055" height="1048" alt="Gold dragon ring on a display stand, front view" loading="lazy" decoding="async"></button><figcaption><span>Front view</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Side view" aria-label="Enlarge: Side view"><img src="img/dr-2.webp" width="1135" height="1135" alt="Gold dragon ring on a display stand, side view" loading="lazy" decoding="async"></button><figcaption><span>Side view</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Wing detail" aria-label="Enlarge: Wing detail"><img src="img/dr-3.webp" width="832" height="987" alt="Gold dragon ring on a display stand, wing detail" loading="lazy" decoding="async"></button><figcaption><span>Wing detail</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Tail detail" aria-label="Enlarge: Tail detail"><img src="img/dr-4.webp" width="1012" height="994" alt="Gold dragon ring on a display stand, tail detail" loading="lazy" decoding="async"></button><figcaption><span>Tail detail</span></figcaption></figure></div></div><div class="masonry three"><figure class="ph"><button type="button" class="zoom" data-cap="Render on white" aria-label="Enlarge: Render on white"><img src="img/dr-prev1.webp" width="1069" height="801" alt="Render of the dragon ring on white" loading="lazy" decoding="async"></button><figcaption><span>Render on white</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="Model prepared for printing" aria-label="Enlarge: Model prepared for printing"><img src="img/dr-print.webp" width="941" height="754" alt="Dragon ring model prepared for printing" loading="lazy" decoding="async"></button><figcaption><span>Model prepared for printing</span></figcaption></figure><figure class="ph"><button type="button" class="zoom" data-cap="In the hand" aria-label="Enlarge: In the hand"><img src="img/dr-hand.webp" width="1500" height="1373" alt="Dragon ring held in a goldsmith&#x27;s hand" loading="lazy" decoding="async"></button><figcaption><span>In the hand</span></figcaption></figure></div>
     </article>
   </section>
 
@@ -494,6 +520,17 @@ dialog#lb figcaption { font-family: var(--font-mono); font-size: .78rem; letter-
   <button type="button" class="lb-nav next" aria-label="Next image">&#8250;</button>
 </dialog>
 
+<dialog id="v3d" aria-label="3D model viewer">
+  <div class="v3d-bar">
+    <span class="v3d-title" id="v3d-title">3D View</span>
+    <div class="v3d-acts">
+      <a class="v3d-full" id="v3d-full" href="3d/view.html">Full screen</a>
+      <button type="button" class="v3d-close" aria-label="Close">&times;</button>
+    </div>
+  </div>
+  <iframe id="v3d-frame" title="3D jewelry viewer" allow="fullscreen"></iframe>
+</dialog>
+
 <script>
 (function () {
   'use strict';
@@ -587,6 +624,52 @@ dialog#lb figcaption { font-family: var(--font-mono); font-size: .78rem; letter-
       });
     }, { threshold: 0.35 });
     vids.forEach(function (v) { io.observe(v); });
+  }
+
+  // ----- 3D viewers: load inline embeds near viewport and open card 3D previews on click -----
+  var embeds = document.querySelectorAll('iframe.viewer3d[data-src]');
+  if (embeds.length) {
+    if (!('IntersectionObserver' in window)) {
+      embeds.forEach(function (fr) { fr.src = fr.getAttribute('data-src'); });
+    } else {
+      var eio = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          var fr = en.target;
+          var src = fr.getAttribute('data-src');
+          if (src && !fr.getAttribute('src')) { fr.setAttribute('src', src); }
+          eio.unobserve(fr);
+        });
+      }, { rootMargin: '250px 0px' });
+      embeds.forEach(function (fr) { eio.observe(fr); });
+    }
+  }
+
+  var v3d = document.getElementById('v3d');
+  var v3dFrame = document.getElementById('v3d-frame');
+  var v3dTitle = document.getElementById('v3d-title');
+  var v3dFull = document.getElementById('v3d-full');
+  if (v3d && v3dFrame) {
+    function closeV3d() {
+      if (typeof v3d.close === 'function') { v3d.close(); } else { v3d.removeAttribute('open'); }
+      v3dFrame.setAttribute('src', 'about:blank');
+    }
+    v3d.querySelector('.v3d-close').addEventListener('click', closeV3d);
+    v3d.addEventListener('close', function () { v3dFrame.setAttribute('src', 'about:blank'); });
+    document.addEventListener('click', function (e) {
+      var trigger = e.target.closest && e.target.closest('[data-3d]');
+      if (!trigger || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      var id = trigger.getAttribute('data-3d');
+      var card = trigger.closest('figure');
+      var capBtn = card && card.querySelector('.zoom[data-cap]');
+      var title = trigger.getAttribute('data-title') || (capBtn && capBtn.getAttribute('data-cap')) || '3D View';
+      var url = '3d/view.html?p=' + encodeURIComponent(id);
+      if (v3dTitle) v3dTitle.textContent = title;
+      if (v3dFull) v3dFull.setAttribute('href', url);
+      v3dFrame.setAttribute('src', url + '&modal');
+      if (typeof v3d.showModal === 'function') { v3d.showModal(); } else { v3d.setAttribute('open', ''); }
+    });
   }
 })();
 
