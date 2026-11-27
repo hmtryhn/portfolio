@@ -203,31 +203,18 @@ export function initViewer({ defaultId = DEFAULT_MODEL_ID } = {}) {
     renderer.domElement.style.touchAction = "pan-y";
   }
 
-  // Studio light: load iJewel metal & gem EXR maps (with studio_1k.hdr fallback)
+  // Studio light: studio_1k.hdr for balanced metal reflections + iJewel env-gem-002.exr exclusively for diamonds/gems
   const pmrem = new THREE.PMREMGenerator(renderer);
   const gemShaderMats = [];
   let gemEnvTex = null;
 
-  new EXRLoader().load(
-    "env-metal-002.exr",
-    (tex) => {
-      tex.mapping = THREE.EquirectangularReflectionMapping;
-      const envScene = new THREE.Scene();
-      envScene.background = tex;
-      scene.environment = pmrem.fromScene(envScene, 0.015).texture;
-      tex.dispose();
-    },
-    undefined,
-    () => {
-      new RGBELoader().load("studio_1k.hdr", (tex) => {
-        tex.mapping = THREE.EquirectangularReflectionMapping;
-        const envScene = new THREE.Scene();
-        envScene.background = tex;
-        scene.environment = pmrem.fromScene(envScene, 0.018).texture;
-        tex.dispose();
-      });
-    }
-  );
+  new RGBELoader().load("studio_1k.hdr", (tex) => {
+    tex.mapping = THREE.EquirectangularReflectionMapping;
+    const envScene = new THREE.Scene();
+    envScene.background = tex;
+    scene.environment = pmrem.fromScene(envScene, 0.016).texture;
+    tex.dispose();
+  });
 
   new EXRLoader().load("env-gem-002.exr", (tex) => {
     tex.mapping = THREE.EquirectangularReflectionMapping;
@@ -246,8 +233,8 @@ export function initViewer({ defaultId = DEFAULT_MODEL_ID } = {}) {
   function createMetalMaterial(src, preserveInitialColor) {
     const m = new THREE.MeshPhysicalMaterial({
       metalness: 1,
-      roughness: 0.04,
-      envMapIntensity: 1.15,
+      roughness: 0.055,
+      envMapIntensity: 0.95,
       side: THREE.DoubleSide,
     });
     const rp = (src && src.userData && src.userData.rootPath) ? String(src.userData.rootPath) : "";
