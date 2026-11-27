@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3D Prototype Preview</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@1,6..96,500&family=IBM+Plex+Mono:wght@400;500&family=Jost:wght@400;500&display=swap">
+<link rel="stylesheet" href="viewer.css">
+<style>
+.pin-gate {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--stage);
+  z-index: 20;
+  transition: opacity .35s ease;
+}
+.pin-gate[hidden] { display: none; }
+.pin-card {
+  width: min(320px, 100%);
+  padding: 28px 24px 24px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 32px rgba(16, 19, 23, 0.06);
+  text-align: center;
+  display: grid;
+  gap: 12px;
+}
+.pin-tag {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.pin-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 26px;
+  color: var(--ink);
+}
+.pin-sub {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+.pin-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+}
+.pin-input {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  font: 500 18px/1 var(--font-mono);
+  letter-spacing: 0.28em;
+  text-align: center;
+  padding: 12px 14px;
+  border-radius: 10px;
+  outline: none;
+  transition: border-color .2s;
+}
+.pin-input:focus {
+  border-color: var(--ink);
+}
+.pin-btn {
+  appearance: none;
+  border: 0;
+  background: var(--ink);
+  color: #fff;
+  font: 500 13px/1 var(--font-ui);
+  letter-spacing: 0.04em;
+  padding: 13px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+.pin-btn:hover { opacity: 0.9; }
+.pin-btn:disabled { opacity: 0.5; cursor: wait; }
+.pin-err {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #b42318;
+  min-height: 15px;
+}
+</style>
+</head>
+<body class="modal">
+<div class="pin-gate" id="pinGate" hidden>
+  <div class="pin-card">
+    <p class="pin-tag">Protected CAD Model</p>
+    <h1 class="pin-title">Private 3D Preview</h1>
+    <p class="pin-sub">Enter the 6-digit client PIN to decrypt and inspect the 3D prototype.</p>
+    <form class="pin-form" id="pinForm" autocomplete="off">
+      <input class="pin-input" id="pinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="12" placeholder="••••••" required autofocus>
+      <button class="pin-btn" id="pinSubmit" type="submit">Unlock 3D Model</button>
+      <p class="pin-err" id="pinError"></p>
+    </form>
+  </div>
+</div>
+<div class="stage" id="stage"></div>
+<div class="hint">Drag to rotate · Right-drag to pan<br>Scroll or pinch to zoom</div>
+<div class="loading" id="loading">Loading the model</div>
+<div class="bar" role="toolbar" aria-label="View">
+  <button aria-pressed="true" data-ring="both">Both</button>
+  <button aria-pressed="false" data-ring="1">Ring 1</button>
+  <button aria-pressed="false" data-ring="2">Ring 2</button>
+  <span class="sep" aria-hidden="true"></span>
+  <button aria-pressed="true" data-metal="orig"><span class="dot" style="background:linear-gradient(135deg,#dfe1e3 50%,#e2b45a 50%)"></span>Original</button>
+  <button aria-pressed="false" data-metal="white"><span class="dot" style="background:#dfe1e3"></span>White</button>
+  <button aria-pressed="false" data-metal="yellow"><span class="dot" style="background:#e2b45a"></span>Yellow</button>
+  <button aria-pressed="false" data-metal="rose"><span class="dot" style="background:#e4ad97"></span>Rose</button>
+  <span class="sep" aria-hidden="true"></span>
+  <button id="spin" aria-pressed="true">Spin</button>
+  <button id="reset" aria-pressed="false">Reset</button>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import { initViewer } from "./viewer.js";
+if (!location.search.includes("glb=") && !location.search.includes("enc=") && !location.search.includes("p=")) {
+  history.replaceState(null, "", "?enc=prototip.bin&metal=orig&client=1" + location.hash);
+}
+initViewer();
+</script>
+</body>
+</html>
