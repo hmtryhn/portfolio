@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
+import { EXRLoader } from "three/addons/loaders/EXRLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import { MeshoptDecoder } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/meshopt_decoder.module.js";
@@ -202,21 +203,40 @@ export function initViewer({ defaultId = DEFAULT_MODEL_ID } = {}) {
     renderer.domElement.style.touchAction = "pan-y";
   }
 
-  // Studio light: brown_photostudio_02 (Poly Haven, CC0), 1k.
+  // Studio light: load iJewel metal & gem EXR maps (with studio_1k.hdr fallback)
   const pmrem = new THREE.PMREMGenerator(renderer);
   const gemShaderMats = [];
-  let hdrEquirectTex = null;
-  new RGBELoader().load("studio_1k.hdr", (tex) => {
+  let gemEnvTex = null;
+
+  new EXRLoader().load(
+    "env-metal-002.exr",
+    (tex) => {
+      tex.mapping = THREE.EquirectangularReflectionMapping;
+      const envScene = new THREE.Scene();
+      envScene.background = tex;
+      scene.environment = pmrem.fromScene(envScene, 0.015).texture;
+      tex.dispose();
+    },
+    undefined,
+    () => {
+      new RGBELoader().load("studio_1k.hdr", (tex) => {
+        tex.mapping = THREE.EquirectangularReflectionMapping;
+        const envScene = new THREE.Scene();
+        envScene.background = tex;
+        scene.environment = pmrem.fromScene(envScene, 0.018).texture;
+        tex.dispose();
+      });
+    }
+  );
+
+  new EXRLoader().load("env-gem-002.exr", (tex) => {
     tex.mapping = THREE.EquirectangularReflectionMapping;
     tex.magFilter = THREE.LinearFilter;
     tex.minFilter = THREE.LinearFilter;
-    hdrEquirectTex = tex;
-    const envScene = new THREE.Scene();
-    envScene.background = tex;
-    // Slight blur (0.018 radians) takes the sharp edge off HDR details while keeping crisp metallic realism
-    scene.environment = pmrem.fromScene(envScene, 0.018).texture;
+    tex.generateMipmaps = false;
+    gemEnvTex = tex;
     for (const gm of gemShaderMats) {
-      gm.uniforms.tEnv.value = hdrEquirectTex;
+      gm.uniforms.envMap.value = gemEnvTex;
     }
   });
 
@@ -226,8 +246,8 @@ export function initViewer({ defaultId = DEFAULT_MODEL_ID } = {}) {
   function createMetalMaterial(src, preserveInitialColor) {
     const m = new THREE.MeshPhysicalMaterial({
       metalness: 1,
-      roughness: 0.045,
-      envMapIntensity: 1.18,
+      roughness: 0.04,
+      envMapIntensity: 1.15,
       side: THREE.DoubleSide,
     });
     const rp = (src && src.userData && src.userData.rootPath) ? String(src.userData.rootPath) : "";
@@ -250,319 +270,353 @@ export function initViewer({ defaultId = DEFAULT_MODEL_ID } = {}) {
     return m;
   }
 
-  function bakeGemNormalCaptureCube(geom) {
-    geom.computeBoundingBox();
-    const box = geom.boundingBox;
-    const center = box.getCenter(new THREE.Vector3());
-    const size = box.getSize(new THREE.Vector3());
-    // WebGI squashFactor (0.98) + centerOffset toward table (+Z) for authentic pavilion bounce geometry
-    const offsetCenter = new THREE.Vector3(center.x, center.y, center.z + size.z * 0.14);
-    const invRadius = 2.0 / Math.max(size.x, size.y, size.z, 1e-4);
-
-    const pos = geom.attributes.position;
-    const idx = geom.index;
-    const triCount = idx ? idx.count / 3 : pos.count / 3;
-    const tris = new Float32Array(triCount * 12);
-    const vA = new THREE.Vector3();
-    const vB = new THREE.Vector3();
-    const vC = new THREE.Vector3();
-    const e1 = new THREE.Vector3();
-    const e2 = new THREE.Vector3();
-    const n = new THREE.Vector3();
-
-    for (let i = 0; i < triCount; i++) {
-      const i0 = idx ? idx.getX(i * 3) : i * 3;
-      const i1 = idx ? idx.getX(i * 3 + 1) : i * 3 + 1;
-      const i2 = idx ? idx.getX(i * 3 + 2) : i * 3 + 2;
-      vA.fromBufferAttribute(pos, i0).sub(offsetCenter).multiplyScalar(invRadius);
-      vB.fromBufferAttribute(pos, i1).sub(offsetCenter).multiplyScalar(invRadius);
-      vC.fromBufferAttribute(pos, i2).sub(offsetCenter).multiplyScalar(invRadius);
-      vA.z *= 0.98;
-      vB.z *= 0.98;
-      vC.z *= 0.98;
-      e1.subVectors(vB, vA);
-      e2.subVectors(vC, vA);
-      n.crossVectors(e1, e2).normalize();
-      const b = i * 12;
-      tris[b] = vA.x; tris[b + 1] = vA.y; tris[b + 2] = vA.z;
-      tris[b + 3] = e1.x; tris[b + 4] = e1.y; tris[b + 5] = e1.z;
-      tris[b + 6] = e2.x; tris[b + 7] = e2.y; tris[b + 8] = e2.z;
-      tris[b + 9] = n.x; tris[b + 10] = n.y; tris[b + 11] = n.z;
-    }
-
-    // Bake equirectangular normal-distance lookup map (256x128) from origin (0,0,0) outward in all directions
-    const W = 256;
-    const H = 128;
-    const mapData = new Float32Array(W * H * 4);
-    for (let y = 0; y < H; y++) {
-      const theta = ((y + 0.5) / H - 0.5) * Math.PI;
-      const cosT = Math.cos(theta);
-      const sinT = Math.sin(theta);
-      for (let x = 0; x < W; x++) {
-        const phi = ((x + 0.5) / W - 0.5) * 2.0 * Math.PI;
-        const dx = cosT * Math.cos(phi);
-        const dy = sinT;
-        const dz = cosT * Math.sin(phi);
-
-        let bestT = 1e9;
-        let nx = dx, ny = dy, nz = dz;
-        for (let i = 0; i < triCount; i++) {
-          const b = i * 12;
-          const v0x = tris[b], v0y = tris[b + 1], v0z = tris[b + 2];
-          const e1x = tris[b + 3], e1y = tris[b + 4], e1z = tris[b + 5];
-          const e2x = tris[b + 6], e2y = tris[b + 7], e2z = tris[b + 8];
-          const px = dy * e2z - dz * e2y;
-          const py = dz * e2x - dx * e2z;
-          const pz = dx * e2y - dy * e2x;
-          const det = e1x * px + e1y * py + e1z * pz;
-          if (Math.abs(det) < 1e-7) continue;
-          const invDet = 1.0 / det;
-          const tx = -v0x, ty = -v0y, tz = -v0z;
-          const u = (tx * px + ty * py + tz * pz) * invDet;
-          if (u < 0.0 || u > 1.0) continue;
-          const qx = ty * e1z - tz * e1y;
-          const qy = tz * e1x - tx * e1z;
-          const qz = tx * e1y - ty * e1x;
-          const v = (dx * qx + dy * qy + dz * qz) * invDet;
-          if (v < 0.0 || u + v > 1.0) continue;
-          const t = (e2x * qx + e2y * qy + e2z * qz) * invDet;
-          if (t > 1e-4 && t < bestT) {
-            bestT = t;
-            nx = tris[b + 9];
-            ny = tris[b + 10];
-            nz = tris[b + 11];
-            if (nx * dx + ny * dy + nz * dz < 0.0) {
-              nx = -nx; ny = -ny; nz = -nz;
-            }
-          }
-        }
-        if (bestT > 1e8) bestT = 1.0;
-        const idx4 = (y * W + x) * 4;
-        mapData[idx4] = nx;
-        mapData[idx4 + 1] = ny;
-        mapData[idx4 + 2] = nz;
-        mapData[idx4 + 3] = bestT;
+  // Exact WebGI / iJewel 3D Normal-Distance CubeMap capture ($c capture shader + CubeCamera)
+  const normalCaptureMat = new THREE.ShaderMaterial({
+    side: THREE.DoubleSide,
+    uniforms: {
+      radius: { value: 1.0 },
+      offsetMatrixInv: { value: new THREE.Matrix4() },
+      offsetCenter: { value: new THREE.Vector3() },
+    },
+    vertexShader: `
+      varying vec3 vNormal;
+      varying vec3 vecPosition;
+      uniform mat4 offsetMatrixInv;
+      uniform vec3 offsetCenter;
+      void main() {
+        vNormal = normalize((offsetMatrixInv * vec4(normal, 0.0)).xyz);
+        vec3 transformed = position - offsetCenter;
+        vec4 offsetPos = offsetMatrixInv * vec4(transformed, 1.0);
+        vecPosition = (modelMatrix * offsetPos).xyz;
+        gl_Position = projectionMatrix * modelViewMatrix * offsetPos;
       }
-    }
-    const captureTex = new THREE.DataTexture(mapData, W, H, THREE.RGBAFormat, THREE.FloatType);
-    captureTex.magFilter = THREE.NearestFilter;
-    captureTex.minFilter = THREE.NearestFilter;
-    captureTex.wrapS = THREE.RepeatWrapping;
-    captureTex.wrapT = THREE.ClampToEdgeWrapping;
-    captureTex.needsUpdate = true;
-    return { captureTex, offsetCenter, invRadius };
-  }
+    `,
+    fragmentShader: `
+      varying vec3 vNormal;
+      varying vec3 vecPosition;
+      uniform float radius;
+      void main() {
+        vec3 color = normalize(vNormal) * 0.5 + 0.5;
+        gl_FragColor = vec4(color.x, color.y, color.z, length(vecPosition) / radius);
+      }
+    `,
+  });
 
   const gemCaptureCache = new WeakMap();
 
+  function captureWebGINormalCube(geom) {
+    let cached = gemCaptureCache.get(geom);
+    if (cached) return cached;
+
+    const offsets = (geom.userData && geom.userData.normalsCaptureOffsets) || {};
+    const center = offsets.center ? new THREE.Vector3().fromArray(offsets.center) : new THREE.Vector3(0, 0, -1.3547);
+    const centerOffset = offsets.centerOffset ? new THREE.Vector3().fromArray(offsets.centerOffset) : new THREE.Vector3(0, 0, 0.2595);
+    const radius = typeof offsets.radius === "number" ? offsets.radius : 1.0;
+    const offsetMatrix = offsets.offsetMatrix ? new THREE.Matrix4().fromArray(offsets.offsetMatrix) : new THREE.Matrix4().makeScale(5.2195, 5.2195, -5.2195);
+    const offsetMatrixInv = offsets.offsetMatrixInv ? new THREE.Matrix4().fromArray(offsets.offsetMatrixInv) : offsetMatrix.clone().invert();
+
+    const cubeRT = new THREE.WebGLCubeRenderTarget(512, {
+      format: THREE.RGBAFormat,
+      type: THREE.HalfFloatType,
+      minFilter: THREE.NearestFilter,
+      magFilter: THREE.NearestFilter,
+      generateMipmaps: false,
+    });
+    const cubeCam = new THREE.CubeCamera(1e-4, 100, cubeRT);
+    const capScene = new THREE.Scene();
+    const capMesh = new THREE.Mesh(geom, normalCaptureMat);
+    capMesh.frustumCulled = false;
+    capScene.add(capMesh);
+    capScene.add(cubeCam);
+
+    normalCaptureMat.uniforms.offsetCenter.value.copy(center);
+    normalCaptureMat.uniforms.offsetMatrixInv.value.copy(offsetMatrixInv);
+    normalCaptureMat.uniforms.radius.value = radius;
+
+    const oldAutoClear = renderer.autoClear;
+    const oldToneMapping = renderer.toneMapping;
+    const oldColorSpace = renderer.outputColorSpace;
+    const oldClearColor = renderer.getClearColor(new THREE.Color());
+    const oldClearAlpha = renderer.getClearAlpha();
+
+    renderer.toneMapping = THREE.NoToneMapping;
+    renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+    renderer.setClearColor(new THREE.Color(0, 0, 0), 1);
+    cubeCam.update(renderer, capScene);
+
+    renderer.setClearColor(oldClearColor, oldClearAlpha);
+    renderer.toneMapping = oldToneMapping;
+    renderer.outputColorSpace = oldColorSpace;
+    renderer.autoClear = oldAutoClear;
+
+    cached = {
+      cubeTex: cubeRT.texture,
+      center,
+      centerOffset,
+      radius,
+      offsetMatrix,
+      offsetMatrixInv,
+    };
+    gemCaptureCache.set(geom, cached);
+    return cached;
+  }
+
   function createGemMaterial(src, geom) {
-    let cap = gemCaptureCache.get(geom);
-    if (!cap) {
-      cap = bakeGemNormalCaptureCube(geom);
-      gemCaptureCache.set(geom, cap);
-    }
+    const cap = captureWebGINormalCube(geom);
     const rp = (src && src.userData && src.userData.rootPath) ? String(src.userData.rootPath) : "";
     const isEmerald = /emerald|green/i.test(rp);
-    const isRuby = /ruby|red|garnet/i.test(rp);
-    const isSapphire = /sapphire|blue/i.test(rp);
 
-    // Match exact WebGI / iJewel 3D parameters from CUSHION_RING 005.glb & prototiprender.glb:
-    // White Diamond: IOR=2.6, dispersion=0.012, absorption=1.0, color=#ffffff, reflectivity=0.5, envMapIntensity=1.3
-    // Emerald (Gem 04): IOR=1.58, dispersion=0.003, absorption=1.8, color=#4fd553 (5232051), boost=(-0.3, 1.0, 1.0), reflectivity=0.31
-    let gemColor = new THREE.Color(0xffffff);
-    let ior = 2.6;
-    let dispersion = 0.012;
-    let absorption = 0.12;
-    let reflectivity = 0.5;
-    let envIntensity = 1.45;
-    let boost = new THREE.Vector3(1.0, 1.0, 1.0);
-
-    if (isEmerald) {
-      gemColor.setHex(5232051);
-      ior = 1.58;
-      dispersion = 0.0025;
-      absorption = 1.8;
-      reflectivity = 0.31;
-      envIntensity = 1.25;
-      boost.set(0.7, 1.05, 1.0);
-    } else if (isRuby) {
-      gemColor.setHex(0xd91b42);
-      ior = 1.77;
-      dispersion = 0.004;
-      absorption = 1.6;
-      reflectivity = 0.38;
-    } else if (isSapphire) {
-      gemColor.setHex(0x1e4fd8);
-      ior = 1.77;
-      dispersion = 0.004;
-      absorption = 1.6;
-      reflectivity = 0.38;
-    }
+    // Exact WebGI DiamondMaterial parameters from CUSHION_RING 005.glb & prototiprender.glb
+    const color = isEmerald ? new THREE.Color(5232051) : new THREE.Color(16777215);
+    const envMapIntensity = isEmerald ? 1.0 : 1.3;
+    const refractiveIndex = isEmerald ? 1.58 : 2.6;
+    const rIndexDelta = isEmerald ? 0.0 : 0.01;
+    const squashFactor = 0.98;
+    const geometryFactor = 0.5;
+    const gammaFactor = 1.0;
+    const absorptionFactor = isEmerald ? 1.8 : 1.0;
+    const reflectivity = isEmerald ? 0.31 : 0.5;
+    const boostFactors = isEmerald ? new THREE.Vector3(-0.3, 1.0, 1.0) : new THREE.Vector3(1.0, 1.0, 1.0);
 
     const mat = new THREE.ShaderMaterial({
+      side: THREE.DoubleSide,
       uniforms: {
-        tCapture: { value: cap.captureTex },
-        tEnv: { value: hdrEquirectTex },
-        uOffsetCenter: { value: cap.offsetCenter },
-        uInvRadius: { value: cap.invRadius },
-        uColor: { value: gemColor },
-        uIor: { value: ior },
-        uDispersion: { value: dispersion },
-        uAbsorption: { value: absorption },
-        uReflectivity: { value: reflectivity },
-        uEnvIntensity: { value: envIntensity },
-        uBoost: { value: boost },
+        tCubeMapNormals: { value: cap.cubeTex },
+        envMap: { value: gemEnvTex },
+        radius: { value: cap.radius },
+        centerOffset: { value: cap.centerOffset.clone() },
+        modelOffsetMatrix: { value: new THREE.Matrix4() },
+        modelOffsetMatrixInv: { value: new THREE.Matrix4() },
+        envMapIntensity: { value: envMapIntensity },
+        refractiveIndex: { value: refractiveIndex },
+        rIndexDelta: { value: rIndexDelta },
+        squashFactor: { value: squashFactor },
+        geometryFactor: { value: geometryFactor },
+        color: { value: color },
+        colorCorrection: { value: new THREE.Vector3(1, 1, 1) },
+        boostFactors: { value: boostFactors },
+        gammaFactor: { value: gammaFactor },
+        absorptionFactor: { value: absorptionFactor },
+        envMapRotation: { value: 0.0 },
+        envMapRotationQuat: { value: new THREE.Vector4(0, 0, 0, 1) },
+        reflectivity: { value: reflectivity },
       },
       vertexShader: `
-        uniform vec3 uOffsetCenter;
-        uniform float uInvRadius;
-        varying vec3 vNormPos;
-        varying vec3 vLocalNormal;
-        varying vec3 vCamNormPos;
-        varying mat3 vLocalToWorld;
+        varying vec3 vWorldPosition;
+        varying vec3 vWorldNormal;
+        varying vec3 vViewPosition;
+        varying vec3 vNormal;
         void main() {
-          vec3 np = (position - uOffsetCenter) * uInvRadius;
-          np.z *= 0.98;
-          vNormPos = np;
-          vLocalNormal = normalize(normal);
-          vec4 wp = modelMatrix * vec4(position, 1.0);
-          mat4 invModel = inverse(modelMatrix);
-          vec3 camLocal = (invModel * vec4(cameraPosition, 1.0)).xyz;
-          vec3 cnp = (camLocal - uOffsetCenter) * uInvRadius;
-          cnp.z *= 0.98;
-          vCamNormPos = cnp;
-          vLocalToWorld = mat3(
-            normalize(modelMatrix[0].xyz),
-            normalize(modelMatrix[1].xyz),
-            normalize(modelMatrix[2].xyz)
-          );
-          gl_Position = projectionMatrix * viewMatrix * wp;
+          vWorldNormal = (modelMatrix * vec4(normal, 0.0)).xyz;
+          vNormal = normalize(normalMatrix * normal);
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          vViewPosition = -mvPosition.xyz;
+          vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+          vWorldPosition = worldPosition.xyz;
+          gl_Position = projectionMatrix * mvPosition;
         }
       `,
       fragmentShader: `
         precision highp float;
-        uniform sampler2D tCapture;
-        uniform sampler2D tEnv;
-        uniform vec3 uColor;
-        uniform float uIor;
-        uniform float uDispersion;
-        uniform float uAbsorption;
-        uniform float uReflectivity;
-        uniform float uEnvIntensity;
-        uniform vec3 uBoost;
+        varying vec3 vWorldNormal;
+        varying vec3 vWorldPosition;
+        varying vec3 vViewPosition;
+        varying vec3 vNormal;
 
-        varying vec3 vNormPos;
-        varying vec3 vLocalNormal;
-        varying vec3 vCamNormPos;
-        varying mat3 vLocalToWorld;
+        uniform float radius;
+        uniform vec3 centerOffset;
+        uniform mat4 modelOffsetMatrixInv;
+        uniform mat4 modelOffsetMatrix;
+        uniform samplerCube tCubeMapNormals;
+        uniform sampler2D envMap;
+        uniform float envMapIntensity;
+        uniform float refractiveIndex;
+        uniform float rIndexDelta;
+        uniform float squashFactor;
+        uniform float geometryFactor;
+        uniform vec3 color;
+        uniform vec3 colorCorrection;
+        uniform vec3 boostFactors;
+        uniform float gammaFactor;
+        uniform float absorptionFactor;
+        uniform float envMapRotation;
+        uniform vec4 envMapRotationQuat;
+        uniform float reflectivity;
 
-        const float PI = 3.14159265359;
+        #define PI 3.1428
+        #define RAY_BOUNCES 5
+        #define CENTER_OFFSET (centerOffset)
+        #define MODEL_OFFSET_MATRIX modelOffsetMatrix
+        #define INV_MODEL_OFFSET_MATRIX modelOffsetMatrixInv
 
-        vec2 dirToUV(vec3 d) {
-          vec3 n = normalize(d);
-          return vec2(atan(n.z, n.x) / (2.0 * PI) + 0.5, asin(clamp(n.y, -1.0, 1.0)) / PI + 0.5);
+        vec3 BRDF_Specular_GGX_Environment(const in vec3 viewDir, const in vec3 normal, const in vec3 specularColor, const in float roughness) {
+          float dotNV = abs(dot(normal, viewDir));
+          const vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);
+          const vec4 c1 = vec4(1.0, 0.0425, 1.04, -0.04);
+          vec4 r = roughness * c0 + c1;
+          float a004 = min(r.x * r.x, exp2(-9.28 * dotNV)) * r.x + r.y;
+          vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
+          return specularColor * AB.x + AB.y;
         }
 
-        vec4 sampleCapture(vec3 dir) {
-          return texture2D(tCapture, dirToUV(dir));
+        vec2 cartesianToPolar(vec3 n) {
+          vec2 uv;
+          uv.x = atan(n.z, n.x) / (PI * 2.0) + 0.5;
+          uv.y = asin(clamp(n.y, -1.0, 1.0)) / PI + 0.5;
+          return uv;
         }
 
-        vec3 sampleEnv(vec3 worldDir) {
-          vec3 d = normalize(worldDir);
-          // WebGI envMapRotationOffset (180 deg) + studio jeweler key lights
-          vec2 uv = dirToUV(vec3(-d.x, d.y, -d.z));
-          vec3 envCol = texture2D(tEnv, uv).rgb * uEnvIntensity;
-          float s1 = pow(max(0.0, dot(d, normalize(vec3(0.32, 0.90, 0.28)))), 52.0) * 9.0;
-          float s2 = pow(max(0.0, dot(d, normalize(vec3(-0.42, 0.84, -0.34)))), 44.0) * 7.5;
-          float s3 = pow(max(0.0, dot(d, normalize(vec3(0.0, 0.97, -0.24)))), 68.0) * 11.0;
-          return envCol + vec3(s1 + s2 + s3) * uEnvIntensity;
+        vec4 sampleEnvMap(vec3 direction, float roughness) {
+          float cs = cos(envMapRotation);
+          float sn = sin(envMapRotation);
+          float temp = cs * direction.x + sn * direction.z;
+          direction.z = -sn * direction.x + cs * direction.z;
+          direction.x = temp;
+          direction.x *= -1.0;
+          direction.y *= -1.0;
+          direction.z *= -1.0;
+          vec3 t = 2.0 * cross(envMapRotationQuat.xyz, direction);
+          direction += envMapRotationQuat.w * t + cross(envMapRotationQuat.xyz, t);
+          return texture2D(envMap, cartesianToPolar(normalize(direction)));
         }
 
-        // Exact WebGI DiamondMaterial sphere-approximated normal capture raytracer (5 bounces, geometryFactor=0.5)
-        vec3 traceWebGIGem(vec3 origin, vec3 initDir) {
-          vec3 ior3 = vec3(uIor - uDispersion, uIor, uIor + uDispersion);
-          vec3 invIor3 = 1.0 / ior3;
-          vec3 result = vec3(0.0);
+        vec4 SampleSpecularReflection(vec3 direction, float roughness) {
+          direction = (viewMatrix * vec4(direction, 0.0)).xyz;
+          return envMapIntensity * sampleEnvMap(direction, roughness);
+        }
 
-          for (int ch = 0; ch < 3; ch++) {
-            float ior = ior3[ch];
-            vec3 p = origin;
-            vec3 d = initDir;
-            float totalDist = 0.0;
-            float throughput = 1.0;
-            float chCol = 0.0;
+        vec4 SampleSpecularContribution(vec3 direction, float roughness) {
+          direction = mat3(MODEL_OFFSET_MATRIX) * direction;
+          direction = (viewMatrix * vec4(direction, 0.0)).xyz;
+          direction = normalize(direction);
+          direction.x *= -1.0;
+          direction.z *= -1.0;
+          return envMapIntensity * sampleEnvMap(direction, roughness);
+        }
 
-            for (int b = 0; b < 5; b++) {
-              // WebGI geometryFactor = 0.5 sphere-projected lookup direction
-              vec3 lookupDir = normalize(p * 0.5 + d);
-              vec4 cap = sampleCapture(lookupDir);
-              vec3 nSurf = normalize(cap.xyz);
-              float r = cap.w;
-
-              // Ray distance inside capture volume
-              float bDot = dot(p, d);
-              float disc = max(0.0, bDot * bDot + r * r - dot(p, p));
-              float stepDist = max(0.05, -bDot + sqrt(disc));
-              totalDist += stepDist;
-              p = normalize(p + d * stepDist * 0.5) * r;
-
-              vec3 nIn = -nSurf;
-              float cosI = clamp(dot(-d, nIn), 0.0, 1.0);
-              float sinT2 = ior * ior * (1.0 - cosI * cosI);
-
-              if (sinT2 >= 1.0) {
-                d = reflect(d, nIn);
-              } else {
-                float cosT = sqrt(1.0 - sinT2);
-                float r0 = (ior - 1.0) / (ior + 1.0);
-                r0 = r0 * r0;
-                float F = r0 + (1.0 - r0) * pow(1.0 - cosT, 5.0);
-                vec3 refrLocal = refract(d, nIn, ior);
-                vec3 envS = sampleEnv(vLocalToWorld * refrLocal);
-                chCol += throughput * (1.0 - F) * envS[ch];
-                throughput *= F;
-                d = reflect(d, nIn);
-                if (throughput < 0.03) break;
-              }
-            }
-            if (throughput >= 0.03) {
-              vec3 envS = sampleEnv(vLocalToWorld * d);
-              chCol += throughput * envS[ch];
-            }
-            // Beer-Lambert gemstone color absorption
-            vec3 absorbColor = max(vec3(0.02), uColor * uBoost);
-            float atten = exp(-(1.0 - absorbColor[ch]) * totalDist * uAbsorption);
-            result[ch] = chCol * atten;
+        vec3 intersectSphere(vec3 origin, vec3 direction) {
+          origin -= CENTER_OFFSET;
+          direction.y /= squashFactor;
+          float A = dot(direction, direction);
+          float B = 2.0 * dot(origin, direction);
+          float C = dot(origin, origin) - radius * radius;
+          float disc = B * B - 4.0 * A * C;
+          if (disc > 0.0) {
+            disc = sqrt(disc);
+            float t1 = (-B + disc) * geometryFactor / A;
+            float t2 = (-B - disc) * geometryFactor / A;
+            float t = (t1 > t2) ? t1 : t2;
+            direction.y *= squashFactor;
+            return vec3(origin + CENTER_OFFSET + direction * t);
           }
-          return result;
+          return vec3(0.0);
+        }
+
+        vec3 linePlaneIntersect(in vec3 pointOnLine, in vec3 lineDirection, in vec3 pointOnPlane, in vec3 planeNormal) {
+          return lineDirection * (dot(planeNormal, pointOnPlane - pointOnLine) / dot(planeNormal, lineDirection)) + pointOnLine;
+        }
+
+        vec4 getNormalDistance(vec3 d) {
+          return textureCube(tCubeMapNormals, d);
+        }
+
+        vec3 getSurfaceNormal(vec4 surfaceInfos) {
+          vec3 surfaceNormal = surfaceInfos.rgb;
+          surfaceNormal = surfaceNormal * 2.0 - 1.0;
+          return -normalize(surfaceNormal);
+        }
+
+        vec3 intersect(vec3 rayOrigin, vec3 rayDirection, inout vec3 hitNormal) {
+          vec3 sphereHitPoint = intersectSphere(rayOrigin, rayDirection);
+          vec3 direction1 = normalize(sphereHitPoint - CENTER_OFFSET);
+          vec4 normalDistanceData1 = getNormalDistance(direction1);
+          float distance1 = normalDistanceData1.a * radius;
+          vec3 pointOnPlane1 = CENTER_OFFSET + direction1 * distance1;
+          vec3 planeNormal1 = getSurfaceNormal(normalDistanceData1);
+          vec3 hitPoint1 = linePlaneIntersect(rayOrigin, rayDirection, pointOnPlane1, planeNormal1);
+
+          vec3 direction2 = normalize(hitPoint1 - CENTER_OFFSET);
+          vec4 normalDistanceData2 = getNormalDistance(direction2);
+          float distance2 = normalDistanceData2.a * radius;
+          vec3 pointOnPlane2 = CENTER_OFFSET + direction2 * distance2;
+          vec3 planeNormal2 = getSurfaceNormal(normalDistanceData2);
+          hitNormal = planeNormal2;
+          vec3 hitPoint = linePlaneIntersect(rayOrigin, rayDirection, pointOnPlane2, planeNormal2);
+          return hitPoint;
+        }
+
+        vec3 getRefractionColor(vec3 origin, vec3 direction, vec3 normal) {
+          vec3 outColor = vec3(0.0);
+          const float n1 = 1.0;
+          const float epsilon = 1e-4;
+          float f0 = (2.4 - n1) / (2.4 + n1);
+          f0 *= f0;
+          vec3 attenuationFactor = vec3(1.0);
+          vec3 newDirection = refract(direction, normal, n1 / refractiveIndex);
+          vec3 brdfRefracted = BRDF_Specular_GGX_Environment(newDirection, -normal, vec3(f0), 0.0);
+          attenuationFactor *= (vec3(1.0) - brdfRefracted);
+          mat4 invModelOffsetMatrix = INV_MODEL_OFFSET_MATRIX;
+          newDirection = normalize((invModelOffsetMatrix * vec4(newDirection, 0.0)).xyz);
+          origin = (invModelOffsetMatrix * vec4(origin, 1.0)).xyz;
+
+          for (int i = 0; i < RAY_BOUNCES; i++) {
+            vec3 hitNormal;
+            vec3 intersectedPos = intersect(origin, newDirection, hitNormal);
+            vec3 dist = intersectedPos - origin;
+            vec3 d = normalize(intersectedPos - CENTER_OFFSET);
+            vec3 mappedNormal = getNormalDistance(d).rgb;
+            mappedNormal = 2.0 * mappedNormal - 1.0;
+            mappedNormal = -normalize(mappedNormal);
+            float r = length(dist) / radius * absorptionFactor;
+            attenuationFactor *= exp(-r * (1.0 - color));
+            origin = intersectedPos;
+            vec3 oldDir = newDirection;
+            newDirection = refract(newDirection, mappedNormal, refractiveIndex / n1);
+
+            if (dot(newDirection, newDirection) < epsilon) {
+              newDirection = reflect(oldDir, mappedNormal);
+              if (i == RAY_BOUNCES - 1) {
+                vec3 brdfReflected = BRDF_Specular_GGX_Environment(-oldDir, mappedNormal, vec3(f0), 0.0);
+                outColor += SampleSpecularContribution(oldDir, 0.0).rgb * attenuationFactor * colorCorrection * boostFactors * (vec3(1.0) - min(vec3(1.0), brdfReflected));
+              }
+            } else {
+              vec3 brdfRefracted2 = vec3(1.0) - min(vec3(1.0), BRDF_Specular_GGX_Environment(newDirection, -mappedNormal, vec3(f0), 0.0));
+              vec3 dir0 = newDirection;
+              vec3 dir1 = refract(oldDir, mappedNormal, (refractiveIndex + rIndexDelta) / n1);
+              vec3 dir2 = refract(oldDir, mappedNormal, (refractiveIndex - rIndexDelta) / n1);
+              vec3 specRefColor = vec3(
+                SampleSpecularContribution(dir1, 0.0).r,
+                SampleSpecularContribution(dir0, 0.0).g,
+                SampleSpecularContribution(dir2, 0.0).b
+              ) * brdfRefracted2 * attenuationFactor * colorCorrection * boostFactors;
+              outColor += specRefColor;
+              newDirection = reflect(oldDir, mappedNormal);
+              vec3 brdfReflected = BRDF_Specular_GGX_Environment(newDirection, mappedNormal, vec3(f0), 0.0);
+              attenuationFactor *= brdfReflected * boostFactors;
+            }
+          }
+          return outColor;
         }
 
         void main() {
-          vec3 dx = dFdx(vNormPos);
-          vec3 dy = dFdy(vNormPos);
-          vec3 flatN = normalize(cross(dx, dy));
-          if (dot(flatN, vLocalNormal) < 0.0) flatN = -flatN;
-
-          vec3 viewDir = normalize(vNormPos - vCamNormPos);
-          float cosTheta = clamp(dot(-viewDir, flatN), 0.0, 1.0);
-          float r0 = (1.0 - uIor) / (1.0 + uIor);
-          r0 = r0 * r0 * (0.5 + uReflectivity);
-          float F = clamp(r0 + (1.0 - r0) * pow(1.0 - cosTheta, 5.0), 0.0, 1.0);
-
-          vec3 reflDir = reflect(viewDir, flatN);
-          vec3 reflCol = sampleEnv(vLocalToWorld * reflDir);
-
-          vec3 refrIn = refract(viewDir, flatN, 1.0 / uIor);
-          if (length(refrIn) < 0.01) refrIn = reflDir;
-          vec3 internalCol = traceWebGIGem(vNormPos, normalize(refrIn));
-
-          vec3 finalColor = mix(internalCol, reflCol, F);
-          gl_FragColor = vec4(finalColor, 1.0);
+          vec3 normalizedNormal = normalize(vWorldNormal);
+          vec3 viewVector = normalize(vWorldPosition - cameraPosition);
+          const float n1 = 1.0;
+          float f0 = (2.4 - n1) / (2.4 + n1);
+          f0 *= f0;
+          vec3 reflectedDirection = reflect(viewVector, normalizedNormal);
+          vec3 brdfReflected = BRDF_Specular_GGX_Environment(reflectedDirection, normalizedNormal, vec3(f0), 0.0);
+          vec3 reflectionColor = SampleSpecularReflection(reflectedDirection, 0.0).rgb * brdfReflected * reflectivity * 2.0;
+          vec3 refractionColor = getRefractionColor(vWorldPosition, viewVector, normalizedNormal);
+          gl_FragColor = vec4(refractionColor.rgb + reflectionColor.rgb, 1.0);
+          gl_FragColor.rgb = pow(max(gl_FragColor.rgb, 0.0), vec3(gammaFactor));
           #include <tonemapping_fragment>
           #include <colorspace_fragment>
         }
       `,
     });
+
+    mat.userData._cap = cap;
     gemShaderMats.push(mat);
     return mat;
   }
@@ -632,10 +686,23 @@ export function initViewer({ defaultId = DEFAULT_MODEL_ID } = {}) {
       if (!o.isMesh) return;
       const src = o.material;
       if (isGemSourceMaterial(src)) {
-        if (!gemBySrc.has(src)) {
-          gemBySrc.set(src, createGemMaterial(src, o.geometry));
+        let gm = gemBySrc.get(o.geometry);
+        if (!gm) {
+          gm = createGemMaterial(src, o.geometry);
+          gemBySrc.set(o.geometry, gm);
         }
-        o.material = gemBySrc.get(src);
+        // Clone per mesh instance so each gem's exact world transform (modelOffsetMatrix) is uploaded in onBeforeRender
+        const instMat = gm.clone();
+        instMat.uniforms = THREE.UniformsUtils.clone(gm.uniforms);
+        instMat.uniforms.tCubeMapNormals.value = gm.userData._cap.cubeTex;
+        instMat.uniforms.envMap.value = gemEnvTex;
+        const cap = gm.userData._cap;
+        gemShaderMats.push(instMat);
+        o.material = instMat;
+        o.onBeforeRender = function () {
+          instMat.uniforms.modelOffsetMatrix.value.copy(cap.offsetMatrix).premultiply(o.matrixWorld);
+          instMat.uniforms.modelOffsetMatrixInv.value.copy(instMat.uniforms.modelOffsetMatrix.value).invert();
+        };
         return;
       }
       if (mode === "original") {
