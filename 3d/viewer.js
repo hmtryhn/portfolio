@@ -204,7 +204,7 @@ export function initViewer({ defaultId = DEFAULT_MODEL_ID } = {}) {
 
   // Studio light: brown_photostudio_02 (Poly Haven, CC0), 1k.
   const pmrem = new THREE.PMREMGenerator(renderer);
-  let gemShaderMat = null;
+  const gemShaderMats = [];
   let hdrEquirectTex = null;
   new RGBELoader().load("studio_1k.hdr", (tex) => {
     tex.mapping = THREE.EquirectangularReflectionMapping;
@@ -215,8 +215,8 @@ export function initViewer({ defaultId = DEFAULT_MODEL_ID } = {}) {
     envScene.background = tex;
     // Slight blur (0.018 radians) takes the sharp edge off HDR details while keeping crisp metallic realism
     scene.environment = pmrem.fromScene(envScene, 0.018).texture;
-    if (gemShaderMat) {
-      gemShaderMat.uniforms.tEnv.value = hdrEquirectTex;
+    for (const gm of gemShaderMats) {
+      gm.uniforms.tEnv.value = hdrEquirectTex;
     }
   });
 
@@ -233,7 +233,11 @@ export function initViewer({ defaultId = DEFAULT_MODEL_ID } = {}) {
     const rp = (src && src.userData && src.userData.rootPath) ? String(src.userData.rootPath) : "";
     if (/whitegold|silver|platinum/i.test(rp)) {
       m.color.setRGB(...METALS.white.color, THREE.LinearSRGBColorSpace);
-    } else if (/yellowgold|rosegold/i.test(rp)) {
+    } else if (/rosegold/i.test(rp)) {
+      const useYellow = product.glb === "prototip.bin" || product.glb === "prototiprender.glb";
+      const col = useYellow ? METALS.yellow.color : METALS.rose.color;
+      m.color.setRGB(...col, THREE.LinearSRGBColorSpace);
+    } else if (/yellowgold/i.test(rp)) {
       m.color.setRGB(...METALS.yellow.color, THREE.LinearSRGBColorSpace);
     } else if (preserveInitialColor && src && src.color) {
       m.color.copy(src.color);
@@ -246,68 +250,187 @@ export function initViewer({ defaultId = DEFAULT_MODEL_ID } = {}) {
     return m;
   }
 
-  function buildGemBVH(geom) {
+  function bakeGemNormalCaptureCube(geom) {
+    geom.computeBoundingBox();
+    const box = geom.boundingBox;
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    // WebGI squashFactor (0.98) + centerOffset toward table (+Z) for authentic pavilion bounce geometry
+    const offsetCenter = new THREE.Vector3(center.x, center.y, center.z + size.z * 0.14);
+    const invRadius = 2.0 / Math.max(size.x, size.y, size.z, 1e-4);
+
     const pos = geom.attributes.position;
     const idx = geom.index;
     const triCount = idx ? idx.count / 3 : pos.count / 3;
-    const data = new Float32Array(triCount * 12);
+    const tris = new Float32Array(triCount * 12);
     const vA = new THREE.Vector3();
     const vB = new THREE.Vector3();
     const vC = new THREE.Vector3();
     const e1 = new THREE.Vector3();
     const e2 = new THREE.Vector3();
     const n = new THREE.Vector3();
+
     for (let i = 0; i < triCount; i++) {
       const i0 = idx ? idx.getX(i * 3) : i * 3;
       const i1 = idx ? idx.getX(i * 3 + 1) : i * 3 + 1;
       const i2 = idx ? idx.getX(i * 3 + 2) : i * 3 + 2;
-      vA.fromBufferAttribute(pos, i0);
-      vB.fromBufferAttribute(pos, i1);
-      vC.fromBufferAttribute(pos, i2);
+      vA.fromBufferAttribute(pos, i0).sub(offsetCenter).multiplyScalar(invRadius);
+      vB.fromBufferAttribute(pos, i1).sub(offsetCenter).multiplyScalar(invRadius);
+      vC.fromBufferAttribute(pos, i2).sub(offsetCenter).multiplyScalar(invRadius);
+      vA.z *= 0.98;
+      vB.z *= 0.98;
+      vC.z *= 0.98;
       e1.subVectors(vB, vA);
       e2.subVectors(vC, vA);
       n.crossVectors(e1, e2).normalize();
-      const base = i * 12;
-      data[base + 0] = vA.x; data[base + 1] = vA.y; data[base + 2] = vA.z; data[base + 3] = 0;
-      data[base + 4] = e1.x; data[base + 5] = e1.y; data[base + 6] = e1.z; data[base + 7] = 0;
-      data[base + 8] = e2.x; data[base + 9] = e2.y; data[base + 10] = e2.z; data[base + 11] = 0;
+      const b = i * 12;
+      tris[b] = vA.x; tris[b + 1] = vA.y; tris[b + 2] = vA.z;
+      tris[b + 3] = e1.x; tris[b + 4] = e1.y; tris[b + 5] = e1.z;
+      tris[b + 6] = e2.x; tris[b + 7] = e2.y; tris[b + 8] = e2.z;
+      tris[b + 9] = n.x; tris[b + 10] = n.y; tris[b + 11] = n.z;
     }
-    const width = 64;
-    const totalVec4 = triCount * 3;
-    const height = Math.ceil(totalVec4 / width);
-    const padded = new Float32Array(width * height * 4);
-    padded.set(data);
-    const tex = new THREE.DataTexture(padded, width, height, THREE.RGBAFormat, THREE.FloatType);
-    tex.needsUpdate = true;
-    return { tex, triCount, width, height };
+
+    // Bake equirectangular normal-distance lookup map (256x128) from origin (0,0,0) outward in all directions
+    const W = 256;
+    const H = 128;
+    const mapData = new Float32Array(W * H * 4);
+    for (let y = 0; y < H; y++) {
+      const theta = ((y + 0.5) / H - 0.5) * Math.PI;
+      const cosT = Math.cos(theta);
+      const sinT = Math.sin(theta);
+      for (let x = 0; x < W; x++) {
+        const phi = ((x + 0.5) / W - 0.5) * 2.0 * Math.PI;
+        const dx = cosT * Math.cos(phi);
+        const dy = sinT;
+        const dz = cosT * Math.sin(phi);
+
+        let bestT = 1e9;
+        let nx = dx, ny = dy, nz = dz;
+        for (let i = 0; i < triCount; i++) {
+          const b = i * 12;
+          const v0x = tris[b], v0y = tris[b + 1], v0z = tris[b + 2];
+          const e1x = tris[b + 3], e1y = tris[b + 4], e1z = tris[b + 5];
+          const e2x = tris[b + 6], e2y = tris[b + 7], e2z = tris[b + 8];
+          const px = dy * e2z - dz * e2y;
+          const py = dz * e2x - dx * e2z;
+          const pz = dx * e2y - dy * e2x;
+          const det = e1x * px + e1y * py + e1z * pz;
+          if (Math.abs(det) < 1e-7) continue;
+          const invDet = 1.0 / det;
+          const tx = -v0x, ty = -v0y, tz = -v0z;
+          const u = (tx * px + ty * py + tz * pz) * invDet;
+          if (u < 0.0 || u > 1.0) continue;
+          const qx = ty * e1z - tz * e1y;
+          const qy = tz * e1x - tx * e1z;
+          const qz = tx * e1y - ty * e1x;
+          const v = (dx * qx + dy * qy + dz * qz) * invDet;
+          if (v < 0.0 || u + v > 1.0) continue;
+          const t = (e2x * qx + e2y * qy + e2z * qz) * invDet;
+          if (t > 1e-4 && t < bestT) {
+            bestT = t;
+            nx = tris[b + 9];
+            ny = tris[b + 10];
+            nz = tris[b + 11];
+            if (nx * dx + ny * dy + nz * dz < 0.0) {
+              nx = -nx; ny = -ny; nz = -nz;
+            }
+          }
+        }
+        if (bestT > 1e8) bestT = 1.0;
+        const idx4 = (y * W + x) * 4;
+        mapData[idx4] = nx;
+        mapData[idx4 + 1] = ny;
+        mapData[idx4 + 2] = nz;
+        mapData[idx4 + 3] = bestT;
+      }
+    }
+    const captureTex = new THREE.DataTexture(mapData, W, H, THREE.RGBAFormat, THREE.FloatType);
+    captureTex.magFilter = THREE.NearestFilter;
+    captureTex.minFilter = THREE.NearestFilter;
+    captureTex.wrapS = THREE.RepeatWrapping;
+    captureTex.wrapT = THREE.ClampToEdgeWrapping;
+    captureTex.needsUpdate = true;
+    return { captureTex, offsetCenter, invRadius };
   }
 
+  const gemCaptureCache = new WeakMap();
+
   function createGemMaterial(src, geom) {
-    if (gemShaderMat) return gemShaderMat;
-    const bvh = buildGemBVH(geom);
-    gemShaderMat = new THREE.ShaderMaterial({
+    let cap = gemCaptureCache.get(geom);
+    if (!cap) {
+      cap = bakeGemNormalCaptureCube(geom);
+      gemCaptureCache.set(geom, cap);
+    }
+    const rp = (src && src.userData && src.userData.rootPath) ? String(src.userData.rootPath) : "";
+    const isEmerald = /emerald|green/i.test(rp);
+    const isRuby = /ruby|red|garnet/i.test(rp);
+    const isSapphire = /sapphire|blue/i.test(rp);
+
+    // Match exact WebGI / iJewel 3D parameters from CUSHION_RING 005.glb & prototiprender.glb:
+    // White Diamond: IOR=2.6, dispersion=0.012, absorption=1.0, color=#ffffff, reflectivity=0.5, envMapIntensity=1.3
+    // Emerald (Gem 04): IOR=1.58, dispersion=0.003, absorption=1.8, color=#4fd553 (5232051), boost=(-0.3, 1.0, 1.0), reflectivity=0.31
+    let gemColor = new THREE.Color(0xffffff);
+    let ior = 2.6;
+    let dispersion = 0.012;
+    let absorption = 0.12;
+    let reflectivity = 0.5;
+    let envIntensity = 1.45;
+    let boost = new THREE.Vector3(1.0, 1.0, 1.0);
+
+    if (isEmerald) {
+      gemColor.setHex(5232051);
+      ior = 1.58;
+      dispersion = 0.0025;
+      absorption = 1.8;
+      reflectivity = 0.31;
+      envIntensity = 1.25;
+      boost.set(0.7, 1.05, 1.0);
+    } else if (isRuby) {
+      gemColor.setHex(0xd91b42);
+      ior = 1.77;
+      dispersion = 0.004;
+      absorption = 1.6;
+      reflectivity = 0.38;
+    } else if (isSapphire) {
+      gemColor.setHex(0x1e4fd8);
+      ior = 1.77;
+      dispersion = 0.004;
+      absorption = 1.6;
+      reflectivity = 0.38;
+    }
+
+    const mat = new THREE.ShaderMaterial({
       uniforms: {
-        tTri: { value: bvh.tex },
+        tCapture: { value: cap.captureTex },
         tEnv: { value: hdrEquirectTex },
-        uTriCount: { value: bvh.triCount },
-        uTexSize: { value: new THREE.Vector2(bvh.width, bvh.height) },
+        uOffsetCenter: { value: cap.offsetCenter },
+        uInvRadius: { value: cap.invRadius },
+        uColor: { value: gemColor },
+        uIor: { value: ior },
+        uDispersion: { value: dispersion },
+        uAbsorption: { value: absorption },
+        uReflectivity: { value: reflectivity },
+        uEnvIntensity: { value: envIntensity },
+        uBoost: { value: boost },
       },
       vertexShader: `
-        varying vec3 vLocalPos;
+        uniform vec3 uOffsetCenter;
+        uniform float uInvRadius;
+        varying vec3 vNormPos;
         varying vec3 vLocalNormal;
-        varying vec3 vWorldPos;
-        varying vec3 vWorldNormal;
-        varying vec3 vCamLocal;
+        varying vec3 vCamNormPos;
         varying mat3 vLocalToWorld;
         void main() {
-          vLocalPos = position;
-          // Use flat facet normals via derivatives in fragment or vertex normal
+          vec3 np = (position - uOffsetCenter) * uInvRadius;
+          np.z *= 0.98;
+          vNormPos = np;
           vLocalNormal = normalize(normal);
           vec4 wp = modelMatrix * vec4(position, 1.0);
-          vWorldPos = wp.xyz;
-          vWorldNormal = normalize(mat3(modelMatrix) * normal);
           mat4 invModel = inverse(modelMatrix);
-          vCamLocal = (invModel * vec4(cameraPosition, 1.0)).xyz;
+          vec3 camLocal = (invModel * vec4(cameraPosition, 1.0)).xyz;
+          vec3 cnp = (camLocal - uOffsetCenter) * uInvRadius;
+          cnp.z *= 0.98;
+          vCamNormPos = cnp;
           vLocalToWorld = mat3(
             normalize(modelMatrix[0].xyz),
             normalize(modelMatrix[1].xyz),
@@ -318,146 +441,130 @@ export function initViewer({ defaultId = DEFAULT_MODEL_ID } = {}) {
       `,
       fragmentShader: `
         precision highp float;
-        uniform sampler2D tTri;
+        uniform sampler2D tCapture;
         uniform sampler2D tEnv;
-        uniform int uTriCount;
-        uniform vec2 uTexSize;
+        uniform vec3 uColor;
+        uniform float uIor;
+        uniform float uDispersion;
+        uniform float uAbsorption;
+        uniform float uReflectivity;
+        uniform float uEnvIntensity;
+        uniform vec3 uBoost;
 
-        varying vec3 vLocalPos;
+        varying vec3 vNormPos;
         varying vec3 vLocalNormal;
-        varying vec3 vWorldPos;
-        varying vec3 vWorldNormal;
-        varying vec3 vCamLocal;
+        varying vec3 vCamNormPos;
         varying mat3 vLocalToWorld;
 
         const float PI = 3.14159265359;
 
-        vec4 fetchVec4(int idx) {
-          int x = idx - (idx / 64) * 64;
-          int y = idx / 64;
-          return texelFetch(tTri, ivec2(x, y), 0);
+        vec2 dirToUV(vec3 d) {
+          vec3 n = normalize(d);
+          return vec2(atan(n.z, n.x) / (2.0 * PI) + 0.5, asin(clamp(n.y, -1.0, 1.0)) / PI + 0.5);
+        }
+
+        vec4 sampleCapture(vec3 dir) {
+          return texture2D(tCapture, dirToUV(dir));
         }
 
         vec3 sampleEnv(vec3 worldDir) {
           vec3 d = normalize(worldDir);
-          vec2 uv = vec2(atan(d.z, d.x) / (2.0 * PI) + 0.5, asin(clamp(d.y, -1.0, 1.0)) / PI + 0.5);
-          // Add virtual bright jeweler studio overhead spotlights for crisp diamond fire & scintillation
-          vec3 envCol = texture2D(tEnv, uv).rgb;
-          float spot1 = pow(max(0.0, dot(d, normalize(vec3(0.35, 0.88, 0.32)))), 48.0) * 14.0;
-          float spot2 = pow(max(0.0, dot(d, normalize(vec3(-0.45, 0.82, -0.35)))), 40.0) * 11.0;
-          float spot3 = pow(max(0.0, dot(d, normalize(vec3(0.0, 0.96, -0.28)))), 64.0) * 16.0;
-          float ringLight = smoothstep(0.55, 0.72, d.y) * (1.0 - smoothstep(0.75, 0.88, d.y)) * 2.4;
-          return envCol * 1.35 + vec3(spot1 + spot2 + spot3 + ringLight);
+          // WebGI envMapRotationOffset (180 deg) + studio jeweler key lights
+          vec2 uv = dirToUV(vec3(-d.x, d.y, -d.z));
+          vec3 envCol = texture2D(tEnv, uv).rgb * uEnvIntensity;
+          float s1 = pow(max(0.0, dot(d, normalize(vec3(0.32, 0.90, 0.28)))), 52.0) * 9.0;
+          float s2 = pow(max(0.0, dot(d, normalize(vec3(-0.42, 0.84, -0.34)))), 44.0) * 7.5;
+          float s3 = pow(max(0.0, dot(d, normalize(vec3(0.0, 0.97, -0.24)))), 68.0) * 11.0;
+          return envCol + vec3(s1 + s2 + s3) * uEnvIntensity;
         }
 
-        float fresnelSchlick(float cosTheta, float ior1, float ior2) {
-          float r0 = (ior1 - ior2) / (ior1 + ior2);
-          r0 = r0 * r0;
-          float c = clamp(1.0 - cosTheta, 0.0, 1.0);
-          float r = r0 + (1.0 - r0) * (c * c * c * c * c);
-          return r;
-        }
+        // Exact WebGI DiamondMaterial sphere-approximated normal capture raytracer (5 bounces, geometryFactor=0.5)
+        vec3 traceWebGIGem(vec3 origin, vec3 initDir) {
+          vec3 ior3 = vec3(uIor - uDispersion, uIor, uIor + uDispersion);
+          vec3 invIor3 = 1.0 / ior3;
+          vec3 result = vec3(0.0);
 
-        bool intersectInternal(vec3 orig, vec3 dir, out float tHit, out vec3 nHit) {
-          tHit = 1e9;
-          bool found = false;
-          for (int i = 0; i < 360; i++) {
-            if (i >= uTriCount) break;
-            int base = i * 3;
-            vec3 v0 = fetchVec4(base).xyz;
-            vec3 e1 = fetchVec4(base + 1).xyz;
-            vec3 e2 = fetchVec4(base + 2).xyz;
-            vec3 pvec = cross(dir, e2);
-            float det = dot(e1, pvec);
-            // We want exit hit from inside -> back-facing or front-facing with t > 0.002
-            if (abs(det) < 1e-6) continue;
-            float invDet = 1.0 / det;
-            vec3 tvec = orig - v0;
-            float u = dot(tvec, pvec) * invDet;
-            if (u < 0.0 || u > 1.0) continue;
-            vec3 qvec = cross(tvec, e1);
-            float v = dot(dir, qvec) * invDet;
-            if (v < 0.0 || u + v > 1.0) continue;
-            float t = dot(e2, qvec) * invDet;
-            if (t > 0.005 && t < tHit) {
-              tHit = t;
-              nHit = normalize(cross(e1, e2));
-              found = true;
+          for (int ch = 0; ch < 3; ch++) {
+            float ior = ior3[ch];
+            vec3 p = origin;
+            vec3 d = initDir;
+            float totalDist = 0.0;
+            float throughput = 1.0;
+            float chCol = 0.0;
+
+            for (int b = 0; b < 5; b++) {
+              // WebGI geometryFactor = 0.5 sphere-projected lookup direction
+              vec3 lookupDir = normalize(p * 0.5 + d);
+              vec4 cap = sampleCapture(lookupDir);
+              vec3 nSurf = normalize(cap.xyz);
+              float r = cap.w;
+
+              // Ray distance inside capture volume
+              float bDot = dot(p, d);
+              float disc = max(0.0, bDot * bDot + r * r - dot(p, p));
+              float stepDist = max(0.05, -bDot + sqrt(disc));
+              totalDist += stepDist;
+              p = normalize(p + d * stepDist * 0.5) * r;
+
+              vec3 nIn = -nSurf;
+              float cosI = clamp(dot(-d, nIn), 0.0, 1.0);
+              float sinT2 = ior * ior * (1.0 - cosI * cosI);
+
+              if (sinT2 >= 1.0) {
+                d = reflect(d, nIn);
+              } else {
+                float cosT = sqrt(1.0 - sinT2);
+                float r0 = (ior - 1.0) / (ior + 1.0);
+                r0 = r0 * r0;
+                float F = r0 + (1.0 - r0) * pow(1.0 - cosT, 5.0);
+                vec3 refrLocal = refract(d, nIn, ior);
+                vec3 envS = sampleEnv(vLocalToWorld * refrLocal);
+                chCol += throughput * (1.0 - F) * envS[ch];
+                throughput *= F;
+                d = reflect(d, nIn);
+                if (throughput < 0.03) break;
+              }
             }
+            if (throughput >= 0.03) {
+              vec3 envS = sampleEnv(vLocalToWorld * d);
+              chCol += throughput * envS[ch];
+            }
+            // Beer-Lambert gemstone color absorption
+            vec3 absorbColor = max(vec3(0.02), uColor * uBoost);
+            float atten = exp(-(1.0 - absorbColor[ch]) * totalDist * uAbsorption);
+            result[ch] = chCol * atten;
           }
-          return found;
-        }
-
-        vec3 traceChannel(vec3 rayOrig, vec3 rayDir, float ior) {
-          vec3 p = rayOrig;
-          vec3 d = rayDir;
-          float throughput = 1.0;
-          vec3 accum = vec3(0.0);
-          for (int bounce = 0; bounce < 5; bounce++) {
-            float tHit;
-            vec3 nOut;
-            if (!intersectInternal(p, d, tHit, nOut)) {
-              accum += throughput * sampleEnv(vLocalToWorld * d);
-              break;
-            }
-            p = p + d * tHit;
-            // Inside the gem, normal pointing inward is -nOut (if nOut is outward)
-            vec3 nIn = dot(d, nOut) > 0.0 ? -nOut : nOut;
-            float cosI = clamp(dot(-d, nIn), 0.0, 1.0);
-            float sinT2 = ior * ior * (1.0 - cosI * cosI);
-            if (sinT2 >= 1.0) {
-              // Total Internal Reflection (TIR) inside diamond pavilion!
-              d = reflect(d, nIn);
-              throughput *= 0.985;
-            } else {
-              float cosT = sqrt(1.0 - sinT2);
-              float r0 = (ior - 1.0) / (ior + 1.0);
-              r0 = r0 * r0;
-              float c = 1.0 - cosT;
-              float F = r0 + (1.0 - r0) * (c * c * c * c * c);
-              vec3 refrDir = refract(d, nIn, ior);
-              accum += throughput * (1.0 - F) * sampleEnv(vLocalToWorld * refrDir);
-              throughput *= F * 0.98;
-              d = reflect(d, nIn);
-              if (throughput < 0.04) break;
-            }
-          }
-          return accum;
+          return result;
         }
 
         void main() {
-          // Flat facet normal in local space for crisp diamond facet edges
-          vec3 dx = dFdx(vLocalPos);
-          vec3 dy = dFdy(vLocalPos);
+          vec3 dx = dFdx(vNormPos);
+          vec3 dy = dFdy(vNormPos);
           vec3 flatN = normalize(cross(dx, dy));
           if (dot(flatN, vLocalNormal) < 0.0) flatN = -flatN;
 
-          vec3 viewDirLocal = normalize(vLocalPos - vCamLocal);
-          float cosTheta = clamp(dot(-viewDirLocal, flatN), 0.0, 1.0);
-          float F = fresnelSchlick(cosTheta, 1.0, 2.417);
+          vec3 viewDir = normalize(vNormPos - vCamNormPos);
+          float cosTheta = clamp(dot(-viewDir, flatN), 0.0, 1.0);
+          float r0 = (1.0 - uIor) / (1.0 + uIor);
+          r0 = r0 * r0 * (0.5 + uReflectivity);
+          float F = clamp(r0 + (1.0 - r0) * pow(1.0 - cosTheta, 5.0), 0.0, 1.0);
 
-          vec3 reflLocal = reflect(viewDirLocal, flatN);
-          vec3 reflColor = sampleEnv(vLocalToWorld * reflLocal);
+          vec3 reflDir = reflect(viewDir, flatN);
+          vec3 reflCol = sampleEnv(vLocalToWorld * reflDir);
 
-          // Chromatic dispersion across R, G, B (diamond IOR 2.407 -> 2.424 -> 2.451)
-          vec3 dirR = refract(viewDirLocal, flatN, 1.0 / 2.405);
-          vec3 dirG = refract(viewDirLocal, flatN, 1.0 / 2.424);
-          vec3 dirB = refract(viewDirLocal, flatN, 1.0 / 2.452);
+          vec3 refrIn = refract(viewDir, flatN, 1.0 / uIor);
+          if (length(refrIn) < 0.01) refrIn = reflDir;
+          vec3 internalCol = traceWebGIGem(vNormPos, normalize(refrIn));
 
-          float colR = traceChannel(vLocalPos, dirR, 2.405).r;
-          float colG = traceChannel(vLocalPos, dirG, 2.424).g;
-          float colB = traceChannel(vLocalPos, dirB, 2.452).b;
-
-          vec3 internalColor = vec3(colR, colG, colB) * vec3(0.99, 0.995, 1.02);
-          vec3 finalColor = mix(internalColor, reflColor, F);
-
+          vec3 finalColor = mix(internalCol, reflCol, F);
           gl_FragColor = vec4(finalColor, 1.0);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>
         }
       `,
     });
-    return gemShaderMat;
+    gemShaderMats.push(mat);
+    return mat;
   }
 
   function setMetal(key) {
