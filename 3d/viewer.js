@@ -240,12 +240,12 @@ export function initViewer({ defaultId = DEFAULT_MODEL_ID } = {}) {
     const rp = (src && src.userData && src.userData.rootPath) ? String(src.userData.rootPath) : "";
     if (/whitegold|silver|platinum/i.test(rp)) {
       m.color.setRGB(...METALS.white.color, THREE.LinearSRGBColorSpace);
+    } else if (/warmgold|yellowgold/i.test(rp)) {
+      m.color.setRGB(...METALS.yellow.color, THREE.LinearSRGBColorSpace);
     } else if (/rosegold/i.test(rp)) {
       const useYellow = product.glb === "prototip.bin" || product.glb === "prototiprender.glb";
       const col = useYellow ? METALS.yellow.color : METALS.rose.color;
       m.color.setRGB(...col, THREE.LinearSRGBColorSpace);
-    } else if (/yellowgold/i.test(rp)) {
-      m.color.setRGB(...METALS.yellow.color, THREE.LinearSRGBColorSpace);
     } else if (preserveInitialColor && src && src.color) {
       m.color.copy(src.color);
     } else {
@@ -731,13 +731,29 @@ export function initViewer({ defaultId = DEFAULT_MODEL_ID } = {}) {
     const ring2Meshes = [];
     const wb = new THREE.Box3();
     const wc = new THREE.Vector3();
+    const meshCenters = [];
     root.traverse((o) => {
       if (!o.isMesh) return;
       wb.setFromObject(o);
       wb.getCenter(wc);
-      if (wc.z < 0) ring1Meshes.push(o);
-      else ring2Meshes.push(o);
+      meshCenters.push({ mesh: o, x: wc.x, z: wc.z });
     });
+    if (meshCenters.length > 0) {
+      let minX = 1e9, maxX = -1e9, minZ = 1e9, maxZ = -1e9;
+      for (const mc of meshCenters) {
+        if (mc.x < minX) minX = mc.x;
+        if (mc.x > maxX) maxX = mc.x;
+        if (mc.z < minZ) minZ = mc.z;
+        if (mc.z > maxZ) maxZ = mc.z;
+      }
+      const splitByX = (maxX - minX) >= (maxZ - minZ);
+      const mid = splitByX ? (minX + maxX) * 0.5 : (minZ + maxZ) * 0.5;
+      for (const mc of meshCenters) {
+        const val = splitByX ? mc.x : mc.z;
+        if (val < mid) ring1Meshes.push(mc.mesh);
+        else ring2Meshes.push(mc.mesh);
+      }
+    }
 
     function frameVisible(keepAngle) {
       wrap.updateMatrixWorld(true);
